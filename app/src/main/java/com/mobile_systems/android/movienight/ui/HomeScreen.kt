@@ -14,12 +14,6 @@ import com.mobile_systems.android.movienight.ui.components.MovieCarousel
 fun HomeScreen(modifier: Modifier) {
     Column(modifier = Modifier.fillMaxSize()) {
 
-        Text(
-            text = "Featured Treats",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-        )
-
         MovieCarousel()
     }
 }

@@ -18,11 +18,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.mobile_systems.android.movienight.R
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieCarousel() {
+
 
     //The items in the carousel are the movies
     data class CarouselItem(
@@ -41,24 +43,36 @@ fun MovieCarousel() {
         )
     }
 
-    HorizontalUncontainedCarousel(
-        state = rememberCarouselState { carouselItems.count() },
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(top = 16.dp, bottom = 16.dp),
-        itemWidth = 120.dp,
-        itemSpacing = 8.dp,
-        contentPadding = PaddingValues(horizontal = 8.dp)
-    ) { i ->
-        val item = carouselItems[i]
-        Image(
+    Column {
+
+        Text(
+            text = "Watchlist",
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier
-                .height(180.dp)
-                .maskClip(MaterialTheme.shapes.extraLarge),
-            painter = painterResource(id = item.imageResId),
-            contentDescription = item.contentDescription,
-            contentScale = ContentScale.FillBounds
+                .padding(start = 16.dp) // Aligns with the screen edge
         )
+
+        HorizontalUncontainedCarousel(
+            state = rememberCarouselState { carouselItems.count() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(top = 4.dp, bottom = 16.dp),
+            itemWidth = 120.dp,
+            itemSpacing = 8.dp,
+            contentPadding = PaddingValues(horizontal = 8.dp)
+        ) { i ->
+            val item = carouselItems[i]
+            Image(
+                modifier = Modifier
+                    .height(180.dp)
+                    .maskClip(MaterialTheme.shapes.extraLarge),
+                painter = painterResource(id = item.imageResId),
+                contentDescription = item.contentDescription,
+                contentScale = ContentScale.FillBounds
+            )
+        }
     }
+
+
 }
