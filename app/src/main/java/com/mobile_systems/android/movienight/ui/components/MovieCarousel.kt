@@ -23,7 +23,7 @@ import androidx.compose.material3.Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieCarousel() {
+fun MovieCarousel(title: String) {
 
 
     //The items in the carousel are the movies
@@ -46,7 +46,7 @@ fun MovieCarousel() {
     Column {
 
         Text(
-            text = "Watchlist",
+            text = title,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier
                 .padding(start = 16.dp) // Aligns with the screen edge
