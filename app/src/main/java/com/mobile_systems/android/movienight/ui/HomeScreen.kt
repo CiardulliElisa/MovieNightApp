@@ -4,10 +4,12 @@ import android.graphics.Movie
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mobile_systems.android.movienight.ui.components.MovieCarousel
+import com.mobile_systems.android.movienight.ui.components.MovieSearchBar
 
 val categories = listOf(
     "Trending Now",
@@ -19,7 +21,8 @@ val categories = listOf(
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    // 1. Create a list of the titles you want to display
+
+    //Categories to be labels for the movie carousels
     val categories = listOf(
         "Trending Now",
         "Watchlist",
@@ -28,13 +31,24 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         "Documentaries"
     )
 
-    // 2. Make the Column scrollable
+    //Keeps the search bar text safe during screen rotations
+    val searchState = rememberTextFieldState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        // 3. Loop through the list to create 5 carousels
+        //Create the Search Bar
+        MovieSearchBar(
+            textFieldState = searchState,
+            onSearch = { query ->
+                // This code runs when the user hits 'Search' on their keyboard
+                println("User is looking for: $query")
+            }
+        )
+
+        //Create a carousel for each category
         for (category in categories) {
             MovieCarousel(title = category)
         }

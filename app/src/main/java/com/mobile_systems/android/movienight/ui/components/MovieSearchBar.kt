@@ -1,0 +1,54 @@
+package com.mobile_systems.android.movienight.ui.components
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.unit.dp
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MovieSearchBar(
+    textFieldState: TextFieldState,
+    onSearch: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    DockedSearchBar(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = 16.dp),
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = textFieldState.text.toString(),
+                onQueryChange = { textFieldState.edit { replace(0, length, it) } },
+                onSearch = { onSearch(textFieldState.text.toString()) },
+                expanded = false,
+                onExpandedChange = { },
+                placeholder = { Text("Search movies...") },
+                // ADD THIS:
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon"
+                    )
+                }
+            )
+        },
+        expanded = false,
+        onExpandedChange = { },
+    ) {}
+}
