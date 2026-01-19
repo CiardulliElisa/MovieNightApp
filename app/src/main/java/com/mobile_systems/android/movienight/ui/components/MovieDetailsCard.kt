@@ -107,8 +107,8 @@ fun MovieDetailsCard(
             IconButton(
                 onClick = onClose,
                 modifier = Modifier
-                    .align(Alignment.TopEnd) // Positions it in the corner
-                    .padding(24.dp) // Aligns it nicely relative to the poster card
+                    .align(Alignment.TopEnd)
+                    .padding(24.dp)
             ) {
                 // Using a Surface/CircleShape to make the icon readable against the poster
                 Surface(
