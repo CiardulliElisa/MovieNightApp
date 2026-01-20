@@ -24,11 +24,17 @@ import androidx.compose.ui.unit.dp
 import com.mobile_systems.android.movienight.ui.components.MovieCarousel
 import com.mobile_systems.android.movienight.ui.components.MovieNightButton
 import com.mobile_systems.android.movienight.ui.components.MovieSearchBar
+import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 
 val categories = listOf("Trending Now", "Watchlist", "Action Movies", "Comedy Hits", "Documentaries")
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    onThemeToggle : () -> Unit,
+    onMovieNightClicked : () -> Unit ,
+    modifier: Modifier = Modifier,
+    isDarkTheme : Boolean
+) {
 
     val searchState = rememberTextFieldState()
 
@@ -49,13 +55,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier.weight(1f)
                 )
 
-                IconButton(onClick = { /* Open Settings */ }) {
-                    Icon(
-                        imageVector = Icons.Default.DarkMode,
-                        contentDescription = "Dark Mode",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                ThemeToggleButton(
+                    onThemeToggle = onThemeToggle,
+                    isDarkTheme = isDarkTheme
+                )
+
             }
 
             // 2. The Scrollable Content
@@ -72,10 +76,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
         // 3. The Floating Button (Bottom Right)
         MovieNightButton(
-            onClick = { /* Action */ },
+            onClick = onMovieNightClicked,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp) // Standard FAB margin from screen edges
+                .padding(16.dp)
         )
     }
 }
