@@ -43,7 +43,10 @@ fun RankingListScreen(
         bottomBar = {
             MovieNightEventNavBar(
                 onHomeClick = { onHomeClicked() },
-                onTryAgainClick = { onTryAgainClicked() }
+                onTryAgainClick = {
+                    movieNightEventViewModel.resetMovieNight()
+                    onTryAgainClicked()
+                }
             )
         }
     ) { innerPadding ->

@@ -76,7 +76,6 @@ class MovieNightEventViewModel : ViewModel() {
             }
         }
     }
-
     fun clearSelection() {
         _uiState.update { it.copy(friendToRemove = null) }
     }
