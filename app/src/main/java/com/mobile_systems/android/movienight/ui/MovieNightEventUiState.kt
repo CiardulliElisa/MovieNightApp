@@ -12,9 +12,10 @@ data class MovieNightEventUiState(
 
     //Handling movie night event
     var isMovieNightStarted: Boolean = false,
-    val movieList: List<Movie> = emptyList(),
-    var currentMovie: Movie? = null,
+    val movieList: List<String> = emptyList(),
+    var currentMovie: String? = null,
     var currentFriend: Friend? = null,
     var showNewFriendDialog: Boolean = false,
     var isMovieNightFinished: Boolean = false,
+    var friendsToVote: List<Friend> = friends,
 )

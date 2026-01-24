@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.mobile_systems.android.movienight.data.Friend
+import com.mobile_systems.android.movienight.data.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -25,7 +26,6 @@ private val ICON_POOL = listOf(
     Icons.Default.Icecream,
     Icons.Default.RocketLaunch
 )
-
 private val COLOR_POOL = listOf(
     Color(0xFFE91E63),
     Color(0xFF9C27B0),
@@ -87,5 +87,56 @@ class AddFriendsViewModel : ViewModel() {
             // This sets the selection back to nothing
             currentState.copy(friendToRemove = null)
         }
+    }
+
+    fun startMovieNightEvent() {
+        val movieList = generateRandomMovieList()
+        _uiState.update { currentState ->
+            currentState.copy(
+                isMovieNightStarted = true,
+                movieList = movieList
+            )
+        }
+    }
+
+    fun startMovieNightRound() {
+        if (_uiState.value.movieList.isEmpty()) return
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentMovie = currentState.movieList.firstOrNull(),
+                currentFriend = currentState.friends.randomOrNull(),
+                showNewFriendDialog = true
+            )
+        }
+    }
+
+    fun closeNewFriendDialog() {
+        _uiState.update { currentState -> currentState.copy(showNewFriendDialog = false) }
+    }
+
+    fun endMovieNightRound() {
+        _uiState.update { currentState ->
+            val remainingFriends = currentState.friends - (currentState.currentFriend !!)
+
+            currentState.copy(
+                friendsToVote = remainingFriends,
+                isMovieNightFinished = remainingFriends.isEmpty()
+            )
+        }
+    }
+
+    fun generateRandomMovieList() : List<String> {
+        return listOf(
+            "The Godfather",
+            "Casablanca",
+            "Citizen Kane",
+            "Pulp Fiction",
+            "Schindler's List",
+            "The Shawshank Redemption",
+            "Singin' in the Rain",
+            "Psycho",
+            "2001: A Space Odyssey",
+            "The Wizard of Oz"
+        )
     }
 }
