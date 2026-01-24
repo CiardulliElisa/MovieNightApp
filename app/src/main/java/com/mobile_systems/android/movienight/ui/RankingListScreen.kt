@@ -19,79 +19,69 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.mobile_systems.android.movienight.data.Movie
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieNightEventNavBar
+import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 
 @Composable
 fun RankingListScreen(
     movieNightEventViewModel: MovieNightEventViewModel,
-    modifier: Modifier = Modifier,
+    themeViewModel: ThemeViewModel,
     onHomeClicked: () -> Unit,
     onTryAgainClicked: () -> Unit
 ) {
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
+    val themeUiState by themeViewModel.uiState.collectAsState()
 
     Scaffold(
-        modifier = modifier,
         bottomBar = {
             MovieNightEventNavBar(
-                onHomeClick = {
-                    movieNightEventViewModel.resetMovieNight()
-                    onHomeClicked()
-                },
-                onTryAgainClick = {
-                    movieNightEventViewModel.resetMovieNight()
-                    onTryAgainClicked()
-                }
+                onHomeClick = { onHomeClicked() },
+                onTryAgainClick = { onTryAgainClicked() }
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-        ) {
-            if (movieNightEventUiState.selectedMovie != null && movieNightEventUiState.showMovieDetails) {
-                MovieDetailsCard(
-                    onClose = { movieNightEventViewModel.closeMovieDetails() },
-                )
-            } else {
-                val shuffledMovies = remember(movieNightEventUiState.movieList) {
-                    movieNightEventUiState.movieList.shuffled()
+        // Main container
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+
+            // 1. THE LIST CONTENT
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Final Rankings", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    ThemeToggleButton(isDarkTheme = themeUiState.isDarkTheme, onThemeToggle = { themeViewModel.toggleDarkTheme() })
                 }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                LazyColumn(
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "Final Rankings",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        // The LazyColumn handles its own bottom spacing nicely
-                        contentPadding = PaddingValues(bottom = 16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(shuffledMovies) { movie ->
-                            RankingItem(
-                                movie = movie,
-                                onMovieClick = { movieNightEventViewModel.showMovieDetails() }
-                            )
-                        }
+                    items(movieNightEventUiState.movieList) { movie ->
+                        RankingItem(movie = movie, onMovieClick = { movieNightEventViewModel.showMovieDetails() })
                     }
+                }
+            }
+            if (movieNightEventUiState.showMovieDetails) {
+                Dialog(
+                    onDismissRequest = { movieNightEventViewModel.closeMovieDetails() }
+                ) {
+                    MovieDetailsCard(
+                        onClose = { movieNightEventViewModel.closeMovieDetails() },
+                    )
                 }
             }
         }
     }
 }
 
+/**
+ * Individual Card representing a movie and its vote count.
+ */
 @Composable
 fun RankingItem(
     movie: Movie,
@@ -100,6 +90,9 @@ fun RankingItem(
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onMovieClick(movie) }
@@ -107,20 +100,21 @@ fun RankingItem(
         Row(
             modifier = Modifier
                 .padding(12.dp)
-                .height(150.dp), // Match the poster height
+                .height(120.dp), // Fixed height for a uniform list
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. POSTER
+            // 1. POSTER PLACEHOLDER
+            // Uses a secondary container color that adapts to Light/Dark theme
             Surface(
                 modifier = Modifier
-                    .width(100.dp)
+                    .width(80.dp)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(8.dp)),
                 color = MaterialTheme.colorScheme.secondaryContainer
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = "POSTER",
+                        text = "FILM",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -129,48 +123,47 @@ fun RankingItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // 2. INFO BOX
-            // We use a Box with fillMaxSize to allow internal alignment
+            // 2. MOVIE DATA
+            // Box allows us to align title and scores independently
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Movie Title at the TOP START (Top Left of this box)
                 Text(
                     text = movie.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterStart)
+                    modifier = Modifier.align(Alignment.TopStart)
                 )
 
-                // Icons at the BOTTOM END (Bottom Right of this box)
+                // VOTE COUNTER ROW
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
-                    // Likes
+                    // Likes (Always Green for positive action)
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Yes votes",
+                        contentDescription = "Likes",
                         tint = Color(0xFF4CAF50),
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = movie.likes.toString(),
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(end = 20.dp)
+                        modifier = Modifier.padding(start = 4.dp, end = 16.dp)
                     )
 
-                    // Dislikes
+                    // Dislikes (Uses Theme error color, usually Red)
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "No votes",
+                        contentDescription = "Dislikes",
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = movie.dislikes.toString(),
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(end = 20.dp)
+                        modifier = Modifier.padding(start = 4.dp)
                     )
                 }
             }

@@ -1,10 +1,10 @@
 package com.mobile_systems.android.movienight
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,11 +38,12 @@ fun MovieNightApp(
     val themeViewModel: ThemeViewModel = viewModel()
     val movieNightEventViewModel: MovieNightEventViewModel = viewModel()
     val homeViewModel: HomeViewModel = viewModel()
-    var isDarkTheme by remember { mutableStateOf(true) }
 
-    MovieNightTheme(darkTheme = isDarkTheme) {
-        Surface(
-        ) { NavHost(
+    val themeUiState by themeViewModel.uiState.collectAsState()
+
+    MovieNightTheme(darkTheme = themeUiState.isDarkTheme) {
+        Surface(modifier = Modifier.fillMaxSize())
+        { NavHost(
                 navController = navController,
                 startDestination = MovieNightApp.Home.name,
                 modifier = Modifier.safeDrawingPadding()
@@ -80,7 +81,8 @@ fun MovieNightApp(
                         },
                         onHomeClicked = { navController.navigate(MovieNightApp.Home.name) },
                         onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
-                        modifier = Modifier
+                        modifier = Modifier,
+                        themeViewModel = themeViewModel
                     )
                 }
                 composable(route = MovieNightApp.RankingList.name) {
@@ -88,7 +90,7 @@ fun MovieNightApp(
                         movieNightEventViewModel = movieNightEventViewModel,
                         onHomeClicked = { navController.navigate(MovieNightApp.Home.name) },
                         onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
-                        modifier = Modifier
+                        themeViewModel = themeViewModel
                     )
                 }
             }

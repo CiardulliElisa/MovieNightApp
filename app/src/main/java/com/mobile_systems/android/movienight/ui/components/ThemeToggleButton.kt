@@ -10,12 +10,11 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun ThemeToggleButton(
-    isDarkTheme: Boolean, // Add this to track state
+    isDarkTheme: Boolean,
     onThemeToggle: () -> Unit
 ) {
     IconButton(onClick = onThemeToggle) {
         Icon(
-            // Switch icon based on the current theme
             imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
             contentDescription = if (isDarkTheme) "Switch to Light Mode" else "Switch to Dark Mode",
             tint = MaterialTheme.colorScheme.primary

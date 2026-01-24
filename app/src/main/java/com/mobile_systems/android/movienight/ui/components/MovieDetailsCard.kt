@@ -47,8 +47,9 @@ fun MovieDetailsCard(
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
-            .fillMaxWidth(0.95f)
-            .fillMaxHeight(0.85f)
+            .padding(24.dp) // Breathing room from screen edges
+            .fillMaxWidth()
+            .wrapContentHeight() // Allow card to fit content height
     ) {
         // We use a Box here so we can stack the Close Icon on top of the Poster
         Box(modifier = Modifier.fillMaxSize()) {
