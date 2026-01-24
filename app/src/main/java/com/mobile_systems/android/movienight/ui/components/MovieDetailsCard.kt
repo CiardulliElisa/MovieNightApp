@@ -2,6 +2,8 @@ package com.mobile_systems.android.movienight.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +13,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,8 +36,13 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -43,17 +56,18 @@ import com.mobile_systems.android.movienight.R
 fun MovieDetailsCard(
     onClose: () -> Unit
 ) {
+    var isPinned by remember { mutableStateOf(false) }
+    var isSeen by remember { mutableStateOf(false) }
+
     OutlinedCard(
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
-            .padding(24.dp) // Breathing room from screen edges
+            .padding(24.dp)
             .fillMaxWidth()
-            .wrapContentHeight() // Allow card to fit content height
+            .wrapContentHeight()
     ) {
-        // We use a Box here so we can stack the Close Icon on top of the Poster
-        Box(modifier = Modifier.fillMaxSize()) {
-
+        Box(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
 
                 // 1. The Poster Card
@@ -69,7 +83,7 @@ fun MovieDetailsCard(
                         painter = painterResource(id = R.drawable.littlemisssunshinejpg),
                         contentDescription = "Poster",
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.FillBounds
+                        contentScale = ContentScale.Crop // Crop usually looks better than FillBounds
                     )
                 }
 
@@ -79,10 +93,8 @@ fun MovieDetailsCard(
                         text = "Little Miss Sunshine",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center, // Centers the text lines if they wrap
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 4.dp)// Makes the text take up the full width so it can be centered
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
                     )
 
                     Text(
@@ -90,28 +102,47 @@ fun MovieDetailsCard(
                         style = MaterialTheme.typography.bodyMedium,
                         fontStyle = FontStyle.Italic,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 4.dp)
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp)
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     DetailSection(label = "Actors", value = "Steve Carell, Toni Collette")
                     DetailSection(label = "Genres", value = "Drama, Comedy")
                     DetailSection(label = "Rating", value = "⭐ 8.5")
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // --- ACTION BUTTONS ROW ---
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        MovieActionButton(
+                            icon = if (isPinned) Icons.Default.Bookmark else Icons.Default.Add,
+                            label = if (isPinned) "Saved" else "Save",
+                            isSelected = isPinned,
+                            onClick = { isPinned = !isPinned }
+                        )
+
+                        // Watched Button (Eye icon)
+                        MovieActionButton(
+                            icon = if (isSeen) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            label = if (isSeen) "Watched" else "Not watched",
+                            isSelected = isSeen,
+                            onClick = { isSeen = !isSeen }
+                        )
+                    }
                 }
             }
 
-            // 3. The Close Icon Button (Top Right)
+            // Close Icon (Top Right)
             IconButton(
                 onClick = onClose,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(24.dp)
+                modifier = Modifier.align(Alignment.TopEnd).padding(24.dp)
             ) {
-                // Using a Surface/CircleShape to make the icon readable against the poster
                 Surface(
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
@@ -120,12 +151,49 @@ fun MovieDetailsCard(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        modifier = Modifier.padding(8.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
             }
         }
+    }
+}
+
+/**
+ * Helper component for the Watchlist/Watched buttons
+ */
+@Composable
+fun MovieActionButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    isSelected: Boolean
+) {
+    val contentColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(28.dp)
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
