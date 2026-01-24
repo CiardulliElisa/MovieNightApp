@@ -15,7 +15,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mobile_systems.android.movienight.ui.AddFriendsScreen
 import com.mobile_systems.android.movienight.ui.HomeScreen
+import com.mobile_systems.android.movienight.ui.HomeViewModel
+import com.mobile_systems.android.movienight.ui.MovieNightEventViewModel
 import com.mobile_systems.android.movienight.ui.RankingListScreen
+import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.VoteScreen
 import com.mobile_systems.android.movienight.ui.theme.MovieNightTheme
 
@@ -30,6 +33,9 @@ enum class MovieNightApp() {
 fun MovieNightApp(
     navController: NavHostController = rememberNavController()
 ) {
+    val themeViewModel: ThemeViewModel = viewModel()
+    val movieNightEventViewModel: MovieNightEventViewModel = viewModel()
+    val homeViewModel: HomeViewModel = viewModel()
     var isDarkTheme by remember { mutableStateOf(true) }
 
     MovieNightTheme(darkTheme = isDarkTheme) {
@@ -43,24 +49,32 @@ fun MovieNightApp(
                 composable(route = MovieNightApp.Home.name) {
                     HomeScreen(
                         onMovieNightClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
-                        homeViewModel = viewModel(),
+                        homeViewModel = homeViewModel,
                         modifier = Modifier,
+                        themeViewModel = themeViewModel
                     )
                 }
                 composable(route = MovieNightApp.AddFriends.name) {
                     AddFriendsScreen(
                         onStartClicked = { navController.navigate(MovieNightApp.Vote.name) },
                         onBackClicked = {navController.popBackStack()},
-                        addFriendsViewModel = viewModel(),
-                        themeViewModel = viewModel(),
+                        movieNightEventViewModel = movieNightEventViewModel,
+                        themeViewModel = themeViewModel,
                         modifier = Modifier
                     )
                 }
                 composable(route = MovieNightApp.Vote.name) {
-                    VoteScreen()
+                    VoteScreen(
+                        movieNightEventViewModel = movieNightEventViewModel,
+                        onMovieNightFinished = { navController.navigate(MovieNightApp.RankingList.name) },
+                        modifier = Modifier
+                    )
                 }
                 composable(route = MovieNightApp.RankingList.name) {
-                    RankingListScreen()
+                    RankingListScreen(
+                        movieNightEventViewModel = movieNightEventViewModel,
+                        modifier = Modifier
+                    )
                 }
             }
         }

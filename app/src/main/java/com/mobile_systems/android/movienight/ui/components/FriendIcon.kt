@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.mobile_systems.android.movienight.ui.Friend
+import com.mobile_systems.android.movienight.data.Friend
 
 @Composable
 fun FriendIcon(
@@ -31,7 +31,7 @@ fun FriendIcon(
             onClick = onFriendClick,
             modifier = Modifier.size(84.dp),
             colors = IconButtonDefaults.filledTonalIconButtonColors(
-                containerColor = if (isPrimed) friend.color.copy(alpha = 0.4f) else friend.color
+                containerColor = friend.color
             )
         ) {
             Icon(
@@ -45,7 +45,7 @@ fun FriendIcon(
             text = friend.name,
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(top = 8.dp),
-            color = if (isPrimed) MaterialTheme.colorScheme.error else Color.Unspecified
+            color = Color.White
         )
     }
 }

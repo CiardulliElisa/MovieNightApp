@@ -143,7 +143,10 @@ fun AddFriendsScreen(
                 color = MaterialTheme.colorScheme.surface
             ) {
                 Button(
-                    onClick = onStartClicked,
+                    onClick = {
+                        movieNightEventViewModel.startMovieNightEvent()
+                        onStartClicked()
+                              },
                     modifier = Modifier.fillMaxWidth().padding(16.dp).height(64.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {

@@ -11,11 +11,14 @@ data class MovieNightEventUiState(
     val showEnterNameDialog: Boolean = false,
 
     //Handling movie night event
-    var isMovieNightStarted: Boolean = false,
+    val isMovieNightStarted: Boolean = false,
     val movieList: List<String> = emptyList(),
-    var currentMovie: String? = null,
-    var currentFriend: Friend? = null,
-    var showNewFriendDialog: Boolean = false,
-    var isMovieNightFinished: Boolean = false,
-    var friendsToVote: List<Friend> = friends,
+    val currentMovie: String? = null,
+    val currentFriend: Friend? = null,
+    val showNewFriendDialog: Boolean = false,
+    val isMovieNightFinished: Boolean = false,
+    val friendsToVote: List<Friend> = friends,
+    val currentMovieIndex : Int = 0,
+    val showMovieDetails: Boolean = false,
+    val selectedMovie: String? = null,
 )

@@ -11,4 +11,6 @@ data class Movie(
     val runtime: String,
     val director: String,
     val releaseDate: String,
+    val likes: Int,
+    val dislikes: Int
 )
