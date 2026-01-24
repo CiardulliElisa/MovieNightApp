@@ -35,7 +35,7 @@ private val COLOR_POOL = listOf(
     Color(0xFFFF9800)
 )
 
-class AddFriendsViewModel : ViewModel() {
+class MovieNightEventViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(MovieNightEventUiState())
     val uiState = _uiState.asStateFlow()
 

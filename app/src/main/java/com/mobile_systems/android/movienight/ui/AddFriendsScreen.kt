@@ -24,30 +24,30 @@ import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddFriendsScreen(
-    addFriendsViewModel: AddFriendsViewModel,
+    movieNightEventViewModel: MovieNightEventViewModel,
     themeViewModel : ThemeViewModel,
     onStartClicked: () -> Unit,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val addFriendsUiState by addFriendsViewModel.uiState.collectAsState()
-    val movieNightUiState by themeViewModel.uiState.collectAsState()
+    val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
+    val themeUiState by themeViewModel.uiState.collectAsState()
 
-    val friendNameInput = addFriendsViewModel.friendNameInput
+    val friendNameInput = movieNightEventViewModel.friendNameInput
 
     val scrollState = rememberScrollState()
     val focusRequester = remember { FocusRequester() }
 
     // --- ADD FRIEND DIALOG ---
-    if (addFriendsUiState.showEnterNameDialog) {
+    if (movieNightEventUiState.showEnterNameDialog) {
         AlertDialog(
-            onDismissRequest = { addFriendsViewModel.closeDialog() },
+            onDismissRequest = { movieNightEventViewModel.closeDialog() },
             title = { Text("Add Friend") },
             text = {
                 OutlinedTextField(
                     // Use VM state
                     value = friendNameInput,
-                    onValueChange = { addFriendsViewModel.updateFriendName(it) },
+                    onValueChange = { movieNightEventViewModel.updateFriendName(it) },
                     label = { Text("Name") },
                     singleLine = true,
                     modifier = Modifier
@@ -56,12 +56,12 @@ fun AddFriendsScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { addFriendsViewModel.addFriend() }) {
+                TextButton(onClick = { movieNightEventViewModel.addFriend() }) {
                     Text("Add")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { addFriendsViewModel.closeDialog() }) {
+                TextButton(onClick = { movieNightEventViewModel.closeDialog() }) {
                     Text("Cancel")
                 }
             }
@@ -76,7 +76,7 @@ fun AddFriendsScreen(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                addFriendsViewModel.clearSelection()
+                movieNightEventViewModel.clearSelection()
             }
     ) {
         Column(
@@ -99,17 +99,16 @@ fun AddFriendsScreen(
                 maxItemsInEachRow = 3
             ) {
                 // Use list from uiState
-                addFriendsUiState.friends.forEach { friend ->
+                movieNightEventUiState.friends.forEach { friend ->
                     FriendIcon(
                         friend = friend,
-                        // Check single selection in VM
-                        isPrimed = addFriendsUiState.friendToRemove == friend,
-                        onFriendClick = { addFriendsViewModel.onFriendClicked(friend) }
+                        isPrimed = movieNightEventUiState.friendToRemove == friend,
+                        onFriendClick = { movieNightEventViewModel.onFriendClicked(friend) }
                     )
                 }
 
                 OutlinedIconButton(
-                    onClick = { addFriendsViewModel.openEnterNameDialog() },
+                    onClick = { movieNightEventViewModel.openEnterNameDialog() },
                     modifier = Modifier.size(84.dp),
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
                 ) {
@@ -132,12 +131,12 @@ fun AddFriendsScreen(
 
             ThemeToggleButton(
                 onThemeToggle = { themeViewModel.toggleDarkTheme() },
-                isDarkTheme = movieNightUiState.isDarkTheme
+                isDarkTheme = themeUiState.isDarkTheme
             )
         }
 
         // START BUTTON
-        if (addFriendsUiState.friends.isNotEmpty()) {
+        if (movieNightEventUiState.friends.isNotEmpty()) {
             Surface(
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
                 tonalElevation = 8.dp,

@@ -12,10 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 
 @Composable
-fun VoteScreen(modifier: Modifier = Modifier) {
+fun VoteScreen(
+    movieNightEventViewModel: MovieNightEventViewModel,
+    modifier: Modifier = Modifier
+) {
+    val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -33,7 +40,8 @@ fun VoteScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.size(300.dp, 450.dp),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
-                // Future: AsyncImage or Image goes here
+                //Will contain the clickable poster for the movie
+                Text("Poster")
             }
         }
 
