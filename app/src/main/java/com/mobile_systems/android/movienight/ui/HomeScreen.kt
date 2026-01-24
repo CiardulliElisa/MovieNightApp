@@ -1,6 +1,5 @@
 package com.mobile_systems.android.movienight.ui
 
-import android.graphics.Movie
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,14 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,15 +20,15 @@ import com.mobile_systems.android.movienight.ui.components.MovieNightButton
 import com.mobile_systems.android.movienight.ui.components.MovieSearchBar
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 
-val categories = listOf("Trending Now", "Watchlist", "Action Movies", "Comedy Hits", "Documentaries")
-
 @Composable
 fun HomeScreen(
-    onThemeToggle : () -> Unit,
-    onMovieNightClicked : () -> Unit ,
+    themeViewModel: ThemeViewModel,
+    homeViewModel: HomeViewModel,
+    onMovieNightClicked : () -> Unit,
     modifier: Modifier = Modifier,
-    isDarkTheme : Boolean
 ) {
+    val movieNightUiState by homeViewModel.uiState.collectAsState()
+    val themeUiState by themeViewModel.uiState.collectAsState()
 
     val searchState = rememberTextFieldState()
 
@@ -56,25 +50,24 @@ fun HomeScreen(
                 )
 
                 ThemeToggleButton(
-                    onThemeToggle = onThemeToggle,
-                    isDarkTheme = isDarkTheme
+                    onThemeToggle = { themeViewModel.toggleDarkTheme() },
+                    isDarkTheme = themeUiState.isDarkTheme
                 )
-
             }
 
-            // 2. The Scrollable Content
+            //Movie lists divided by movie category
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                for (category in categories) {
+                for (category in movieNightUiState.movieCategories) {
                     MovieCarousel(title = category)
                 }
             }
         }
 
-        // 3. The Floating Button (Bottom Right)
+        // Button to start a movie night event
         MovieNightButton(
             onClick = onMovieNightClicked,
             modifier = Modifier

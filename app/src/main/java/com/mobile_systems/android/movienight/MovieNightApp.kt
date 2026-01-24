@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,16 +43,17 @@ fun MovieNightApp(
                 composable(route = MovieNightApp.Home.name) {
                     HomeScreen(
                         onMovieNightClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
-                        onThemeToggle = { isDarkTheme = !isDarkTheme },
-                        isDarkTheme = isDarkTheme
+                        homeViewModel = viewModel(),
+                        modifier = Modifier,
                     )
                 }
                 composable(route = MovieNightApp.AddFriends.name) {
                     AddFriendsScreen(
                         onStartClicked = { navController.navigate(MovieNightApp.Vote.name) },
-                        onThemeToggle = { isDarkTheme = !isDarkTheme },
                         onBackClicked = {navController.popBackStack()},
-                        isDarkTheme = isDarkTheme
+                        addFriendsViewModel = viewModel(),
+                        themeViewModel = viewModel(),
+                        modifier = Modifier
                     )
                 }
                 composable(route = MovieNightApp.Vote.name) {

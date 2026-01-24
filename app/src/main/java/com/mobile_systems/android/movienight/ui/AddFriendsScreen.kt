@@ -3,7 +3,6 @@ package com.mobile_systems.android.movienight.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mobile_systems.android.movienight.ui.components.FriendIcon
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 
 data class Friend(
@@ -32,58 +32,53 @@ data class Friend(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddFriendsScreen(
+    addFriendsViewModel: AddFriendsViewModel,
+    themeViewModel : ThemeViewModel,
     onStartClicked: () -> Unit,
     onBackClicked: () -> Unit,
-    onThemeToggle: () -> Unit,
     modifier: Modifier = Modifier,
-    isDarkTheme : Boolean
 ) {
-    // --- STATE ---
-    val iconPool = listOf(Icons.Default.Face, Icons.Default.Pets, Icons.Default.Favorite, Icons.Default.AutoAwesome, Icons.Default.Icecream, Icons.Default.RocketLaunch)
-    val colorPool = listOf(Color(0xFFE91E63), Color(0xFF9C27B0), Color(0xFF3F51B5), Color(0xFF00BCD4), Color(0xFF4CAF50), Color(0xFFFF9800))
+    // 2. Observe the UI State suitcase
+    val addFriendsUiState by addFriendsViewModel.uiState.collectAsState()
+    val movieNightUiState by themeViewModel.uiState.collectAsState()
 
-    val friendsList = remember { mutableStateListOf<Friend>() }
-    val friendsToRemove = remember { mutableStateListOf<Friend>() }
+    // 3. Observe the transient text field state (Codelab style)
+    val friendNameInput = addFriendsViewModel.friendNameInput
+
     val scrollState = rememberScrollState()
-
-    var showDialog by remember { mutableStateOf(false) }
-    var tempName by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
-    // We check this to pass it to the Theme Button icon logic
-    val isDark = isSystemInDarkTheme()
-
     // --- ADD FRIEND DIALOG ---
-    if (showDialog) {
+    if (addFriendsUiState.showEnterNameDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("Enter Friend's Name") },
+            onDismissRequest = { addFriendsViewModel.closeDialog() },
+            title = { Text("Add Friend") },
             text = {
                 OutlinedTextField(
-                    value = tempName,
-                    onValueChange = { tempName = it },
+                    // Use VM state
+                    value = friendNameInput,
+                    onValueChange = { addFriendsViewModel.updateFriendName(it) },
                     label = { Text("Name") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
-                    if (tempName.isNotBlank()) {
-                        friendsList.add(Friend(iconPool.random(), colorPool.random(), tempName))
-                        tempName = ""
-                        showDialog = false
-                    }
-                }) { Text("Add") }
+                TextButton(onClick = { addFriendsViewModel.addFriend() }) {
+                    Text("Add")
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { addFriendsViewModel.closeDialog() }) {
+                    Text("Cancel")
+                }
             }
         )
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
     }
 
-    // --- UI LAYOUT ---
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -91,10 +86,9 @@ fun AddFriendsScreen(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                friendsToRemove.clear()
+                addFriendsViewModel.clearSelection()
             }
     ) {
-        // 1. SCROLLABLE CONTENT (Layered first/bottom)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -114,120 +108,59 @@ fun AddFriendsScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 maxItemsInEachRow = 3
             ) {
-                friendsList.forEach { friend ->
-                    FriendItem(
+                // Use list from uiState
+                addFriendsUiState.friends.forEach { friend ->
+                    FriendIcon(
                         friend = friend,
-                        isPrimed = friendsToRemove.contains(friend),
-                        onFriendClick = {
-                            if (friendsToRemove.contains(friend)) {
-                                friendsList.remove(friend)
-                                friendsToRemove.remove(friend)
-                            } else {
-                                friendsToRemove.clear()
-                                friendsToRemove.add(friend)
-                            }
-                        }
+                        // Check single selection in VM
+                        isPrimed = addFriendsUiState.friendToRemove == friend,
+                        onFriendClick = { addFriendsViewModel.onFriendClicked(friend) }
                     )
                 }
 
-                // Plus Button
                 OutlinedIconButton(
-                    onClick = {
-                        friendsToRemove.clear()
-                        showDialog = true
-                    },
+                    onClick = { addFriendsViewModel.openEnterNameDialog() },
                     modifier = Modifier.size(84.dp),
                     border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Friend",
-                        modifier = Modifier.size(48.dp)
-                    )
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Friend")
                 }
             }
         }
 
-        // 2. TOP NAVIGATION ROW (Layered last/top to ensure clickability)
-
+        // TOP NAVIGATION ROW
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClicked) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
-                )
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
             }
 
             ThemeToggleButton(
-                onThemeToggle = onThemeToggle,
-                isDarkTheme = isDarkTheme
+                onThemeToggle = { themeViewModel.toggleDarkTheme() },
+                isDarkTheme = movieNightUiState.isDarkTheme
             )
         }
 
-        // 3. FIXED START BUTTON
-        if (friendsList.isNotEmpty()) {
+        // START BUTTON
+        if (addFriendsUiState.friends.isNotEmpty()) {
             Surface(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
                 tonalElevation = 8.dp,
-                shadowElevation = 8.dp,
                 color = MaterialTheme.colorScheme.surface
             ) {
                 Button(
                     onClick = onStartClicked,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .height(64.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp).height(64.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        text = "START",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                    Text("START", fontWeight = FontWeight.ExtraBold)
                 }
             }
         }
-    }
-}
-
-@Composable
-fun FriendItem(
-    friend: Friend,
-    isPrimed: Boolean,
-    onFriendClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 8.dp)
-    ) {
-        FilledTonalIconButton(
-            onClick = onFriendClick,
-            modifier = Modifier.size(84.dp),
-            colors = IconButtonDefaults.filledTonalIconButtonColors(
-                containerColor = if (isPrimed) friend.color.copy(alpha = 0.4f) else friend.color
-            )
-        ) {
-            Icon(
-                imageVector = if (isPrimed) Icons.Default.Close else friend.icon,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = Color.White
-            )
-        }
-        Text(
-            text = friend.name,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(top = 8.dp),
-            color = if (isPrimed) MaterialTheme.colorScheme.error else Color.Unspecified
-        )
     }
 }
