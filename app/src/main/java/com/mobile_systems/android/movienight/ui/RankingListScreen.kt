@@ -35,6 +35,10 @@ fun RankingListScreen(
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
 
+    val sortedMovies = remember(movieNightEventUiState.movieList) {
+        movieNightEventViewModel.getSortedRankingList()
+    }
+
     Scaffold(
         bottomBar = {
             MovieNightEventNavBar(
@@ -61,7 +65,7 @@ fun RankingListScreen(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(movieNightEventUiState.movieList) { movie ->
+                    items(sortedMovies) { movie ->
                         RankingItem(movie = movie, onMovieClick = { movieNightEventViewModel.showMovieDetails() })
                     }
                 }

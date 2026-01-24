@@ -120,6 +120,20 @@ class MovieNightEventViewModel : ViewModel() {
         ) }
     }
 
+    /**
+     * Takes the current movie list and returns a version sorted by popularity.
+     * Sorting logic:
+     * 1. Most Likes (Primary)
+     * 2. Least Dislikes (Secondary tie-breaker)
+     */
+    fun getSortedRankingList(): List<Movie> {
+        return _uiState.value.movieList.sortedWith(
+            compareByDescending<Movie> { it.likes }
+                .thenBy { it.dislikes }
+                .thenBy { it.title } // Final tie-breaker: alphabetical order
+        )
+    }
+
     fun endMovieNightRound() {
         _uiState.update { currentState ->
             val remainingFriends = currentState.friendsToVote - (currentState.currentFriend!!)
