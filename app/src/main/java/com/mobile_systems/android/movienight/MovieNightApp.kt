@@ -1,7 +1,9 @@
 package com.mobile_systems.android.movienight
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,16 +41,17 @@ fun MovieNightApp(
     var isDarkTheme by remember { mutableStateOf(true) }
 
     MovieNightTheme(darkTheme = isDarkTheme) {
-        Scaffold(
-        ) { innerPadding ->
-            NavHost(
+        Surface(
+        ) { NavHost(
                 navController = navController,
                 startDestination = MovieNightApp.Home.name,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.safeDrawingPadding()
             ) {
                 composable(route = MovieNightApp.Home.name) {
                     HomeScreen(
-                        onMovieNightClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
+                        onMovieNightClicked = {
+                            navController.navigate(MovieNightApp.AddFriends.name)
+                            movieNightEventViewModel.resetMovieNight() },
                         homeViewModel = homeViewModel,
                         modifier = Modifier,
                         themeViewModel = themeViewModel
@@ -56,7 +59,11 @@ fun MovieNightApp(
                 }
                 composable(route = MovieNightApp.AddFriends.name) {
                     AddFriendsScreen(
-                        onStartClicked = { navController.navigate(MovieNightApp.Vote.name) },
+                        onStartClicked = {
+                            navController.navigate(MovieNightApp.Vote.name) {
+                                popUpTo(MovieNightApp.AddFriends.name) { inclusive = true }
+                            }
+                        },
                         onBackClicked = {navController.popBackStack()},
                         movieNightEventViewModel = movieNightEventViewModel,
                         themeViewModel = themeViewModel,
@@ -66,13 +73,21 @@ fun MovieNightApp(
                 composable(route = MovieNightApp.Vote.name) {
                     VoteScreen(
                         movieNightEventViewModel = movieNightEventViewModel,
-                        onMovieNightFinished = { navController.navigate(MovieNightApp.RankingList.name) },
+                        onMovieNightFinished = {
+                            navController.navigate(MovieNightApp.RankingList.name) {
+                                popUpTo(MovieNightApp.Home.name) { inclusive = false }
+                            }
+                        },
+                        onHomeClicked = { navController.navigate(MovieNightApp.Home.name) },
+                        onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
                         modifier = Modifier
                     )
                 }
                 composable(route = MovieNightApp.RankingList.name) {
                     RankingListScreen(
                         movieNightEventViewModel = movieNightEventViewModel,
+                        onHomeClicked = { navController.navigate(MovieNightApp.Home.name) },
+                        onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
                         modifier = Modifier
                     )
                 }

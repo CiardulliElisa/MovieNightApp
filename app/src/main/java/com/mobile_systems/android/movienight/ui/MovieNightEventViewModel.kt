@@ -2,12 +2,14 @@ package com.mobile_systems.android.movienight.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.mobile_systems.android.movienight.data.Friend
+import com.mobile_systems.android.movienight.data.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -91,16 +93,16 @@ class MovieNightEventViewModel : ViewModel() {
 
     fun startMovieNightRound() {
         if (_uiState.value.movieList.isEmpty()) return
-        _uiState.update { it.copy(
-            currentMovie = it.movieList.firstOrNull(),
+        _uiState.update { currentState -> currentState.copy(
+            currentMovie = currentState.movieList.firstOrNull(),
             currentMovieIndex = 0,
-            currentFriend = it.friendsToVote.randomOrNull(),
+            currentFriend = currentState.friendsToVote.randomOrNull(),
             showNewFriendDialog = true
         ) }
     }
 
     fun closeNewFriendDialog() {
-        _uiState.update { it.copy(showNewFriendDialog = false) }
+        _uiState.update { currentState -> currentState.copy(showNewFriendDialog = false) }
     }
 
     fun updateCurrentMovie() {
@@ -112,9 +114,9 @@ class MovieNightEventViewModel : ViewModel() {
             return
         }
 
-        _uiState.update { it.copy(
+        _uiState.update { currentState -> currentState.copy(
             currentMovieIndex = nextIndex,
-            currentMovie = it.movieList[nextIndex]
+            currentMovie = currentState.movieList[nextIndex]
         ) }
     }
 
@@ -142,8 +144,8 @@ class MovieNightEventViewModel : ViewModel() {
     }
 
     // --- MOVIE DETAILS LOGIC ---
-    fun selectMovie(movie: String) {
-        _uiState.update { it.copy(
+    fun selectMovie(movie: Movie) {
+        _uiState.update { currentState -> currentState.copy(
             selectedMovie = movie,
             showMovieDetails = true
         ) }
@@ -164,11 +166,126 @@ class MovieNightEventViewModel : ViewModel() {
         }
     }
 
-    private fun generateRandomMovieList(): List<String> {
+    fun updateLikes() {
+        val movie = _uiState.value.currentMovie ?: return
+
+        // 1. Create a new movie object with incremented likes
+        val updatedMovie = movie.copy(likes = movie.likes + 1)
+
+        // 2. Update the list to include this updated movie (so the final summary is correct)
+        val updatedList = _uiState.value.movieList.map { movieInList ->
+            if (movieInList.id == movie.id) updatedMovie else movieInList
+        }
+
+        // 3. Emit a whole new UI State
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentMovie = updatedMovie,
+                movieList = updatedList
+            )
+        }
+
+        updateCurrentMovie()
+    }
+
+    fun resetMovieNight() {
+        _uiState.value = MovieNightEventUiState()
+    }
+
+    fun updateDislikes() {
+        val movie = _uiState.value.currentMovie ?: return
+
+        // 1. Create a new movie object with incremented likes
+        val updatedMovie = movie.copy(dislikes = movie.dislikes + 1)
+
+        // 2. Update the list to include this updated movie (so the final summary is correct)
+        val updatedList = _uiState.value.movieList.map { movieInList ->
+            if (movieInList.id == movie.id) updatedMovie else movieInList
+        }
+
+        // 3. Emit a whole new UI State
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentMovie = updatedMovie,
+                movieList = updatedList
+            )
+        }
+
+        updateCurrentMovie()
+    }
+
+    private fun generateRandomMovieList(): List<Movie> {
         return listOf(
-            "The Godfather", "Casablanca", "Citizen Kane", "Pulp Fiction",
-            "Schindler's List", "The Shawshank Redemption", "Singin' in the Rain",
-            "Psycho", "2001: A Space Odyssey", "The Wizard of Oz"
-        )
+            Movie(
+                id = "1",
+                title = "The Godfather",
+                description = "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+                rating = 9.2,
+                posterUrl = "godfather_poster", // Placeholder for local drawable or URL
+                genre = listOf("Crime", "Drama"),
+                actors = listOf("Marlon Brando", "Al Pacino", "James Caan"),
+                runtime = "2h 55m",
+                director = "Francis Ford Coppola",
+                releaseDate = "1972",
+                likes = 0,
+                dislikes = 0
+            ),
+            Movie(
+                id = "2",
+                title = "Pulp Fiction",
+                description = "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+                rating = 8.9,
+                posterUrl = "pulp_fiction_poster",
+                genre = listOf("Crime", "Drama"),
+                actors = listOf("John Travolta", "Uma Thurman", "Samuel L. Jackson"),
+                runtime = "2h 34m",
+                director = "Quentin Tarantino",
+                releaseDate = "1994",
+                likes = 0,
+                dislikes = 0
+            ),
+            Movie(
+                id = "3",
+                title = "The Shawshank Redemption",
+                description = "Over the course of several years, two convicts form a friendship, seeking consolation and, eventually, redemption through basic compassion.",
+                rating = 9.3,
+                posterUrl = "shawshank_poster",
+                genre = listOf("Drama"),
+                actors = listOf("Tim Robbins", "Morgan Freeman", "Bob Gunton"),
+                runtime = "2h 22m",
+                director = "Frank Darabont",
+                releaseDate = "1994",
+                likes = 0,
+                dislikes = 0
+            ),
+            Movie(
+                id = "4",
+                title = "2001: A Space Odyssey",
+                description = "After uncovering a mysterious artifact buried beneath the Lunar surface, mankind sets off on a quest to find its origins with the help of intelligent supercomputer H.A.L. 9000.",
+                rating = 8.3,
+                posterUrl = "space_odyssey_poster",
+                genre = listOf("Sci-Fi", "Adventure"),
+                actors = listOf("Keir Dullea", "Gary Lockwood", "William Sylvester"),
+                runtime = "2h 29m",
+                director = "Stanley Kubrick",
+                releaseDate = "1968",
+                likes = 0,
+                dislikes = 0
+            ),
+            Movie(
+                id = "5",
+                title = "The Wizard of Oz",
+                description = "Dorothy Gale is swept away from a farm in Kansas to a magical land of Oz in a tornado and embarks on a quest with her new friends to see the Wizard.",
+                rating = 8.1,
+                posterUrl = "wizard_oz_poster",
+                genre = listOf("Adventure", "Family", "Fantasy"),
+                actors = listOf("Judy Garland", "Frank Morgan", "Ray Bolger"),
+                runtime = "1h 42m",
+                director = "Victor Fleming",
+                releaseDate = "1939",
+                likes = 0,
+                dislikes = 0
+            )
+        ).shuffled().take(5)
     }
 }
