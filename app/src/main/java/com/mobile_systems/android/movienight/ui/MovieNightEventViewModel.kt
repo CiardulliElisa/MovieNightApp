@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.mobile_systems.android.movienight.data.Friend
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,7 +36,7 @@ private val COLOR_POOL = listOf(
 )
 
 class AddFriendsViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(AddFriendsUiState())
+    private val _uiState = MutableStateFlow(MovieNightEventUiState())
     val uiState = _uiState.asStateFlow()
 
     var friendNameInput by mutableStateOf("")

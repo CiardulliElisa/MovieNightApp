@@ -16,18 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mobile_systems.android.movienight.ui.components.FriendIcon
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
-
-data class Friend(
-    val icon: ImageVector,
-    val color: Color,
-    val name: String
-)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -38,11 +30,9 @@ fun AddFriendsScreen(
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // 2. Observe the UI State suitcase
     val addFriendsUiState by addFriendsViewModel.uiState.collectAsState()
     val movieNightUiState by themeViewModel.uiState.collectAsState()
 
-    // 3. Observe the transient text field state (Codelab style)
     val friendNameInput = addFriendsViewModel.friendNameInput
 
     val scrollState = rememberScrollState()
