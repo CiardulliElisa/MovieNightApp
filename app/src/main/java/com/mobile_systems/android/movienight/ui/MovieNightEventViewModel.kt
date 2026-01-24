@@ -18,9 +18,14 @@ private val ICON_POOL = listOf(
     Icons.Default.Face,
     Icons.Default.Pets,
     Icons.Default.Favorite,
-    Icons.Default.AutoAwesome,
     Icons.Default.Icecream,
-    Icons.Default.RocketLaunch
+    Icons.Default.RocketLaunch,
+    Icons.Default.Person,
+    Icons.Default.Eco,
+    Icons.Default.Diamond,
+    Icons.Default.Cookie,
+    Icons.Default.Cake,
+    Icons.Default.Bedtime
 )
 private val COLOR_POOL = listOf(
     Color(0xFFE91E63),

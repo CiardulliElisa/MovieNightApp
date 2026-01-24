@@ -98,7 +98,7 @@ fun RankingItem(
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -107,23 +107,22 @@ fun RankingItem(
         Row(
             modifier = Modifier
                 .padding(12.dp)
-                .height(120.dp), // Fixed height for a uniform list
+                .height(120.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 1. POSTER PLACEHOLDER
-            // Uses a secondary container color that adapts to Light/Dark theme
             Surface(
                 modifier = Modifier
                     .width(80.dp)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(8.dp)),
-                color = MaterialTheme.colorScheme.secondaryContainer
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = "FILM",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = MaterialTheme.colorScheme.secondaryContainer
                     )
                 }
             }
@@ -131,15 +130,15 @@ fun RankingItem(
             Spacer(modifier = Modifier.width(16.dp))
 
             // 2. MOVIE DATA
-            // Box allows us to align title and scores independently
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
+                // FIXED: Changed Alignment.TopStart to Alignment.CenterStart
                 Text(
                     text = movie.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.TopStart)
+                    modifier = Modifier.align(Alignment.CenterStart)
                 )
 
                 // VOTE COUNTER ROW
@@ -147,7 +146,6 @@ fun RankingItem(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
-                    // Likes (Always Green for positive action)
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Likes",
@@ -157,10 +155,10 @@ fun RankingItem(
                     Text(
                         text = movie.likes.toString(),
                         style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.padding(start = 4.dp, end = 16.dp)
                     )
 
-                    // Dislikes (Uses Theme error color, usually Red)
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Dislikes",
@@ -170,6 +168,7 @@ fun RankingItem(
                     Text(
                         text = movie.dislikes.toString(),
                         style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.padding(start = 4.dp)
                     )
                 }
