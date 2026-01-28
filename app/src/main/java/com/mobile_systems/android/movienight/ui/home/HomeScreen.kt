@@ -1,4 +1,4 @@
-package com.mobile_systems.android.movienight.ui
+package com.mobile_systems.android.movienight.ui.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,25 +12,36 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
+import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieCarousel
+import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieNightButton
 import com.mobile_systems.android.movienight.ui.components.MovieSearchBar
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     themeViewModel: ThemeViewModel,
     homeViewModel: HomeViewModel,
-    onMovieNightClicked : () -> Unit,
+    onMovieNightClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    movieDetailsViewModel: MovieDetailsViewModel,
 ) {
-    val movieNightUiState by homeViewModel.uiState.collectAsState()
+    val homeUiState by homeViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
+    val movieDetailsUiState = movieDetailsViewModel.movieUiState
 
+    val coroutineScope = rememberCoroutineScope()
     val searchState = rememberTextFieldState()
+
+    val categories = listOf("Trending Now", "Watchlist", "Action Movies", "Comedy Hits")
 
     // We use a Box to layer the button over the scrollable content
     Box(modifier = modifier.fillMaxSize()) {
@@ -61,8 +72,15 @@ fun HomeScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                for (category in movieNightUiState.movieCategories) {
-                    MovieCarousel(title = category)
+                for (category in categories) {
+                    MovieCarousel(
+                        title = category,
+                        onMovieClick = { carouselItem ->
+                            coroutineScope.launch {
+                                movieDetailsViewModel.selectMovie(carouselItem.id)
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -74,5 +92,22 @@ fun HomeScreen(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         )
+
+        if (movieDetailsUiState.id != "") {
+            Dialog(
+                onDismissRequest = { movieDetailsViewModel.deselectMovie() }
+            ) {
+                MovieDetailsCard(
+                    movieDetailsUiState = movieDetailsUiState,
+                    onClose = { movieDetailsViewModel.deselectMovie() },
+                    onToWatchClicked = {
+                        coroutineScope.launch { movieDetailsViewModel.toggleToWatch() }
+                    },
+                    onWatchedClicked = {
+                        coroutineScope.launch { movieDetailsViewModel.toggleWatched() }
+                    },
+                )
+            }
+        }
     }
 }

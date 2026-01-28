@@ -2,17 +2,17 @@ package com.mobile_systems.android.movienight.data
 
 import kotlinx.coroutines.flow.Flow
 
-class OfflineSavedMoviesRepository(private val favouriteMovieDao: FavouriteMovieDao, private val movieToWatchDao: MovieToWatchDao) : SavedMoviesRepository {
+class OfflineSavedMoviesRepository(private val watchedMovieDao: WatchedMovieDao, private val movieToWatchDao: MovieToWatchDao) : SavedMoviesRepository {
 
-    override suspend fun insertFavouriteMovie(favouriteMovie: FavouriteMovie) = favouriteMovieDao.insert(favouriteMovie)
+    override suspend fun insertWatchedMovie(watchedMovie: WatchedMovie) = watchedMovieDao.insert(watchedMovie)
 
-    override suspend fun updateFavouriteMovie(favouriteMovie: FavouriteMovie) = favouriteMovieDao.update(favouriteMovie)
+    override suspend fun updateWatchedMovie(watchedMovie: WatchedMovie) = watchedMovieDao.update(watchedMovie)
 
-    override suspend fun deleteFavouriteMovie(favouriteMovie: FavouriteMovie) = favouriteMovieDao.delete(favouriteMovie)
+    override suspend fun deleteWatchedMovie(watchedMovie: WatchedMovie) = watchedMovieDao.delete(watchedMovie)
 
-    override fun getAllFavouriteMovies(): Flow<List<FavouriteMovie>> = favouriteMovieDao.getAllFavouriteMovies()
+    override fun getAllWatchedMovies(): Flow<List<WatchedMovie>> = watchedMovieDao.getAllFavouriteMovies()
 
-    override fun getFavouriteMovieById(id: String): Flow<FavouriteMovie> = favouriteMovieDao.getFavouriteMovieById(id)
+    override fun getWatchedMovieById(id: String): Flow<WatchedMovie> = watchedMovieDao.getFavouriteMovieById(id)
 
     override suspend fun insertMovieToWatch(movieToWatch: MovieToWatch) = movieToWatchDao.insert(movieToWatch)
 

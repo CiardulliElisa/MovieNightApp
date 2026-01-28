@@ -1,4 +1,4 @@
-package com.mobile_systems.android.movienight.ui
+package com.mobile_systems.android.movienight.ui.movienightevent
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,16 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
+import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieNightEventNavBar
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
+import kotlinx.coroutines.launch
 
 @Composable
 fun VoteScreen(
@@ -30,10 +35,15 @@ fun VoteScreen(
     modifier: Modifier = Modifier,
     onMovieNightFinished: () -> Unit,
     onHomeClicked: () -> Unit,
-    onTryAgainClicked: () -> Unit
+    onTryAgainClicked: () -> Unit,
+    movieDetailsViewModel: MovieDetailsViewModel
 ) {
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
+    val movieDetailsUiState = movieDetailsViewModel.movieUiState
+
+    val coroutineScope = rememberCoroutineScope()
+
 
     LaunchedEffect(movieNightEventUiState.isMovieNightFinished) {
         if (movieNightEventUiState.isMovieNightFinished) {
@@ -120,7 +130,11 @@ fun VoteScreen(
                     shape = RoundedCornerShape(24.dp),
                     modifier = Modifier
                         .size(300.dp, 450.dp)
-                        .clickable { movieNightEventViewModel.showMovieDetails() },
+                        .clickable {
+                            movieNightEventUiState.currentMovie?.id?.let { id ->
+                                movieDetailsViewModel.selectMovie(id)
+                            }
+                        },
                     elevation = CardDefaults.cardElevation(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -177,9 +191,20 @@ fun VoteScreen(
                 )
             }
 
-            if (movieNightEventUiState.showMovieDetails) {
-                Dialog(onDismissRequest = { movieNightEventViewModel.closeMovieDetails() }) {
-                    MovieDetailsCard(onClose = { movieNightEventViewModel.closeMovieDetails() })
+            if (movieDetailsUiState.id != "") {
+                Dialog(
+                    onDismissRequest = { movieDetailsViewModel.deselectMovie() }
+                ) {
+                    MovieDetailsCard(
+                        movieDetailsUiState = movieDetailsUiState,
+                        onClose = { movieDetailsViewModel.deselectMovie() },
+                        onToWatchClicked = {
+                            coroutineScope.launch { movieDetailsViewModel.toggleToWatch() }
+                        },
+                        onWatchedClicked = {
+                            coroutineScope.launch { movieDetailsViewModel.toggleWatched() }
+                        }
+                    )
                 }
             }
         }
@@ -191,7 +216,7 @@ fun VoteScreen(
  */
 @Composable
 fun VoteButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     tint: Color,
     onClick: () -> Unit,
     contentDescription: String
@@ -224,7 +249,7 @@ fun VoteButton(
 @Composable
 fun TurnConfirmationDialog(
     friendName: String?,
-    friendIcon: androidx.compose.ui.graphics.vector.ImageVector?,
+    friendIcon: ImageVector?,
     friendColor: Color?,
     onConfirm: () -> Unit
 ) {

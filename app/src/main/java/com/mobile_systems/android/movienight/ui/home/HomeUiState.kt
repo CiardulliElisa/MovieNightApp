@@ -1,4 +1,4 @@
-package com.mobile_systems.android.movienight.ui
+package com.mobile_systems.android.movienight.ui.home
 
 //The UI State is a simple data class that represents everything the user sees on the screen. If it’s not in the state, it shouldn't be on the screen.
 //

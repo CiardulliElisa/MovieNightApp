@@ -11,7 +11,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
 
     override val savedMoviesRepository : SavedMoviesRepository by lazy {
         OfflineSavedMoviesRepository(
-            SavedMoviesDatabase.getDatabase(context).favouriteMovieDao(),
+            SavedMoviesDatabase.getDatabase(context).watchedMovieDao(),
             movieToWatchDao = SavedMoviesDatabase.getDatabase(context).movieToWatchDao()
         )
     }

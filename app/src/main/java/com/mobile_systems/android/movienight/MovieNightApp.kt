@@ -6,22 +6,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.mobile_systems.android.movienight.ui.AddFriendsScreen
-import com.mobile_systems.android.movienight.ui.HomeScreen
-import com.mobile_systems.android.movienight.ui.HomeViewModel
-import com.mobile_systems.android.movienight.ui.MovieNightEventViewModel
-import com.mobile_systems.android.movienight.ui.RankingListScreen
+import com.mobile_systems.android.movienight.ui.AppViewModelProvider
+import com.mobile_systems.android.movienight.ui.movienightevent.AddFriendsScreen
+import com.mobile_systems.android.movienight.ui.home.HomeScreen
+import com.mobile_systems.android.movienight.ui.home.HomeViewModel
+import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
+import com.mobile_systems.android.movienight.ui.movienightevent.MovieNightEventViewModel
+import com.mobile_systems.android.movienight.ui.movienightevent.RankingListScreen
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
-import com.mobile_systems.android.movienight.ui.VoteScreen
+import com.mobile_systems.android.movienight.ui.movienightevent.VoteScreen
 import com.mobile_systems.android.movienight.ui.theme.MovieNightTheme
 
 enum class MovieNightApp() {
@@ -36,8 +35,9 @@ fun MovieNightApp(
     navController: NavHostController = rememberNavController()
 ) {
     val themeViewModel: ThemeViewModel = viewModel()
-    val movieNightEventViewModel: MovieNightEventViewModel = viewModel()
-    val homeViewModel: HomeViewModel = viewModel()
+    val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val movieDetailsViewModel: MovieDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val movieNightEventViewModel: MovieNightEventViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
     val themeUiState by themeViewModel.uiState.collectAsState()
 
@@ -55,7 +55,8 @@ fun MovieNightApp(
                             movieNightEventViewModel.resetMovieNight() },
                         homeViewModel = homeViewModel,
                         modifier = Modifier,
-                        themeViewModel = themeViewModel
+                        themeViewModel = themeViewModel,
+                        movieDetailsViewModel = movieDetailsViewModel
                     )
                 }
                 composable(route = MovieNightApp.AddFriends.name) {
@@ -82,7 +83,8 @@ fun MovieNightApp(
                         onHomeClicked = { navController.navigate(MovieNightApp.Home.name) },
                         onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
                         modifier = Modifier,
-                        themeViewModel = themeViewModel
+                        themeViewModel = themeViewModel,
+                        movieDetailsViewModel = movieDetailsViewModel
                     )
                 }
                 composable(route = MovieNightApp.RankingList.name) {
@@ -90,7 +92,8 @@ fun MovieNightApp(
                         movieNightEventViewModel = movieNightEventViewModel,
                         onHomeClicked = { navController.navigate(MovieNightApp.Home.name) },
                         onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
-                        themeViewModel = themeViewModel
+                        themeViewModel = themeViewModel,
+                        movieDetailsViewModel = movieDetailsViewModel
                     )
                 }
             }

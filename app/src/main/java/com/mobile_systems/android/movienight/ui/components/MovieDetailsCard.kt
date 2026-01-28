@@ -51,13 +51,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mobile_systems.android.movienight.R
+import com.mobile_systems.android.movienight.ui.MovieDetailsUiState
 
 @Composable
 fun MovieDetailsCard(
-    onClose: () -> Unit
+    movieDetailsUiState: MovieDetailsUiState,
+    onClose: () -> Unit,
+    onToWatchClicked: () -> Unit,
+    onWatchedClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    var isPinned by remember { mutableStateOf(false) }
-    var isSeen by remember { mutableStateOf(false) }
+    val movie = movieDetailsUiState.id
 
     OutlinedCard(
         shape = MaterialTheme.shapes.extraLarge,
@@ -121,18 +125,17 @@ fun MovieDetailsCard(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         MovieActionButton(
-                            icon = if (isPinned) Icons.Default.Bookmark else Icons.Default.Add,
-                            label = if (isPinned) "Saved" else "Save",
-                            isSelected = isPinned,
-                            onClick = { isPinned = !isPinned }
+                            icon = if (movieDetailsUiState.isFavourite) Icons.Default.Bookmark else Icons.Default.Add,
+                            label = if (movieDetailsUiState.isFavourite) "Saved" else "Save",
+                            isSelected = movieDetailsUiState.isFavourite,
+                            onClick = onToWatchClicked
                         )
 
-                        // Watched Button (Eye icon)
                         MovieActionButton(
-                            icon = if (isSeen) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            label = if (isSeen) "Watched" else "Not watched",
-                            isSelected = isSeen,
-                            onClick = { isSeen = !isSeen }
+                            icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            label = if (movieDetailsUiState.isWatched) "Watched" else "Watchlist",
+                            isSelected = movieDetailsUiState.isWatched,
+                            onClick = onWatchedClicked // Calls the ViewModel
                         )
                     }
                 }
@@ -159,9 +162,6 @@ fun MovieDetailsCard(
     }
 }
 
-/**
- * Helper component for the Watchlist/Watched buttons
- */
 @Composable
 fun MovieActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,

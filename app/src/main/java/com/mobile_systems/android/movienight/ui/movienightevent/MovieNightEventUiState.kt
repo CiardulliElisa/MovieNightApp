@@ -1,4 +1,4 @@
-package com.mobile_systems.android.movienight.ui
+package com.mobile_systems.android.movienight.ui.movienightevent
 
 import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.data.Movie

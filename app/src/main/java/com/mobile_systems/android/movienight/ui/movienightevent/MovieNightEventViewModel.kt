@@ -1,12 +1,12 @@
-package com.mobile_systems.android.movienight.ui
+package com.mobile_systems.android.movienight.ui.movienightevent
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.data.Movie
@@ -36,7 +36,7 @@ private val COLOR_POOL = listOf(
     Color(0xFFFF9800)
 )
 
-class MovieNightEventViewModel : ViewModel() {
+class MovieNightEventViewModel(createSavedStateHandle: SavedStateHandle) : ViewModel() {
     private val _uiState = MutableStateFlow(MovieNightEventUiState())
     val uiState = _uiState.asStateFlow()
 

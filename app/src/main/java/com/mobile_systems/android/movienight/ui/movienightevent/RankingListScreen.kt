@@ -1,4 +1,4 @@
-package com.mobile_systems.android.movienight.ui
+package com.mobile_systems.android.movienight.ui.movienightevent
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,19 +22,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.mobile_systems.android.movienight.data.Movie
+import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
+import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieNightEventNavBar
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun RankingListScreen(
     movieNightEventViewModel: MovieNightEventViewModel,
     themeViewModel: ThemeViewModel,
     onHomeClicked: () -> Unit,
-    onTryAgainClicked: () -> Unit
+    onTryAgainClicked: () -> Unit,
+    movieDetailsViewModel: MovieDetailsViewModel
 ) {
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
+    val movieDetailsUiState = movieDetailsViewModel.movieUiState
+
+    val coroutineScope = rememberCoroutineScope()
 
     val sortedMovies = remember(movieNightEventUiState.movieList) {
         movieNightEventViewModel.getSortedRankingList()
@@ -69,16 +78,27 @@ fun RankingListScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(sortedMovies) { movie ->
-                        RankingItem(movie = movie, onMovieClick = { movieNightEventViewModel.showMovieDetails() })
+                        RankingItem(movie = movie, onMovieClick = { selectedMovie ->
+                            coroutineScope.launch {
+                                movieDetailsViewModel.selectMovie(selectedMovie.id)
+                            }
+                        })
                     }
                 }
             }
-            if (movieNightEventUiState.showMovieDetails) {
+            if (movieDetailsUiState.id != "") {
                 Dialog(
-                    onDismissRequest = { movieNightEventViewModel.closeMovieDetails() }
+                    onDismissRequest = { movieDetailsViewModel.deselectMovie() }
                 ) {
                     MovieDetailsCard(
-                        onClose = { movieNightEventViewModel.closeMovieDetails() },
+                        movieDetailsUiState = movieDetailsUiState,
+                        onClose = { movieDetailsViewModel.deselectMovie() },
+                        onToWatchClicked = {
+                            coroutineScope.launch { movieDetailsViewModel.toggleToWatch() }
+                        },
+                        onWatchedClicked = {
+                            coroutineScope.launch { movieDetailsViewModel.toggleWatched() }
+                        }
                     )
                 }
             }
@@ -92,7 +112,7 @@ fun RankingListScreen(
 @Composable
 fun RankingItem(
     movie: Movie,
-    onMovieClick: (Movie) -> Unit
+    onMovieClick: (Movie) -> Unit,
 ) {
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
@@ -102,7 +122,7 @@ fun RankingItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onMovieClick(movie) }
+            .clickable { onMovieClick(movie) },
     ) {
         Row(
             modifier = Modifier
