@@ -145,7 +145,7 @@ fun VoteScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = movieNightEventUiState.currentMovie?.title ?: "Selecting Movie...",
+                            text = movieNightEventUiState.currentMovie?.info?.name ?: "Loading movie...",
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,

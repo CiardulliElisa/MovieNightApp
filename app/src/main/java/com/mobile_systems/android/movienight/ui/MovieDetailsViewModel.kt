@@ -13,16 +13,9 @@ class MovieDetailsViewModel(
     private val savedMoviesRepository: SavedMoviesRepository
 ) : ViewModel() {
 
-    /**
-     * Holds current movie ui state, mimicking ItemEditViewModel's pattern
-     */
     var movieUiState by mutableStateOf(MovieDetailsUiState())
         private set
 
-    /**
-     * Logic similar to the init block in ItemEditViewModel.
-     * It fetches the current database status for the selected ID.
-     */
     fun selectMovie(movieId: String) {
         viewModelScope.launch {
             val toWatchEntry = savedMoviesRepository.getMovieToWatchById(movieId).firstOrNull()
@@ -67,10 +60,6 @@ class MovieDetailsViewModel(
         }
     }
 
-    /**
-     * Internal helper to refresh just the booleans,
-     * similar to how updateUiState validates input.
-     */
     private suspend fun updateStatus(id: String) {
         val toWatch = savedMoviesRepository.getMovieToWatchById(id).firstOrNull()
         val watched = savedMoviesRepository.getWatchedMovieById(id).firstOrNull()

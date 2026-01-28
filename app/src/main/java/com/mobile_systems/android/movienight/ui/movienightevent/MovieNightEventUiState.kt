@@ -1,7 +1,7 @@
 package com.mobile_systems.android.movienight.ui.movienightevent
 
 import com.mobile_systems.android.movienight.data.Friend
-import com.mobile_systems.android.movienight.data.Movie
+import com.mobile_systems.android.movienight.model.Movie
 
 data class MovieNightEventUiState(
 

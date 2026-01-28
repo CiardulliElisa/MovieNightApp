@@ -14,23 +14,27 @@ import com.mobile_systems.android.movienight.ui.movienightevent.MovieNightEventV
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-        // Initializer for ItemEditViewModel
+
+        initializer {
+            MovieViewModel(
+                moviesRepository = movieNightApplication().container.moviesRepository
+            )
+        }
+
         initializer {
             HomeViewModel(
                 this.createSavedStateHandle()
             )
         }
-        // Initializer for ItemEntryViewModel
         initializer {
             MovieDetailsViewModel(
                 movieNightApplication().container.savedMoviesRepository
             )
         }
 
-        // Initializer for ItemDetailsViewModel
         initializer {
             MovieNightEventViewModel(
-                this.createSavedStateHandle()
+                moviesRepository = movieNightApplication().container.moviesRepository
             )
         }
     }

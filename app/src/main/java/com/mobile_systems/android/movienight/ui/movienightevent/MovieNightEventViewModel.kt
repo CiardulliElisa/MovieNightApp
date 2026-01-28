@@ -8,11 +8,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mobile_systems.android.movienight.data.Friend
-import com.mobile_systems.android.movienight.data.Movie
+import com.mobile_systems.android.movienight.data.MoviesRepository
+import com.mobile_systems.android.movienight.model.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 private val ICON_POOL = listOf(
     Icons.Default.Face,
@@ -36,7 +39,9 @@ private val COLOR_POOL = listOf(
     Color(0xFFFF9800)
 )
 
-class MovieNightEventViewModel(createSavedStateHandle: SavedStateHandle) : ViewModel() {
+class MovieNightEventViewModel(
+    private val moviesRepository: MoviesRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(MovieNightEventUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -86,13 +91,44 @@ class MovieNightEventViewModel(createSavedStateHandle: SavedStateHandle) : ViewM
     }
 
     fun startMovieNightEvent() {
-        val movieList = generateRandomMovieList()
-        _uiState.update { it.copy(
-            isMovieNightStarted = true,
-            movieList = movieList,
-            friendsToVote = it.friends
-        ) }
-        startMovieNightRound()
+        viewModelScope.launch {
+            // Start by setting a loading state if you have one,
+            // or just proceed with the fetch
+            try {
+                // 1. Logic to fetch random movies directly using the repository
+                val idPool = (1000000..1500000).take(60).map { "tt$it" }
+                val fetchedMovies = mutableListOf<Movie>()
+
+                for (id in idPool) {
+                    if (fetchedMovies.size >= 20) break
+                    try {
+                        val movie = moviesRepository.getMovie(id)
+                        if (movie.info.name.isNotBlank() && movie.info.image.isNotBlank()) {
+                            fetchedMovies.add(movie)
+                        }
+                    } catch (e: Exception) {
+                        continue // Skip failed IDs
+                    }
+                }
+
+                // 2. Only start the event if we actually found movies
+                if (fetchedMovies.isNotEmpty()) {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            isMovieNightStarted = true,
+                            movieList = fetchedMovies,
+                            friendsToVote = currentState.friends,
+                            currentMovie = fetchedMovies.firstOrNull(),
+                            currentMovieIndex = 0,
+                            currentFriend = currentState.friends.randomOrNull(),
+                            showNewFriendDialog = true
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun startMovieNightRound() {
@@ -134,7 +170,7 @@ class MovieNightEventViewModel(createSavedStateHandle: SavedStateHandle) : ViewM
         return _uiState.value.movieList.sortedWith(
             compareByDescending<Movie> { it.likes }
                 .thenBy { it.dislikes }
-                .thenBy { it.title } // Final tie-breaker: alphabetical order
+                .thenBy { it.info.name } // Final tie-breaker: alphabetical order
         )
     }
 
@@ -230,80 +266,5 @@ class MovieNightEventViewModel(createSavedStateHandle: SavedStateHandle) : ViewM
         }
 
         updateCurrentMovie()
-    }
-
-    private fun generateRandomMovieList(): List<Movie> {
-        return listOf(
-            Movie(
-                id = "1",
-                title = "The Godfather",
-                description = "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
-                rating = 9.2,
-                posterUrl = "godfather_poster", // Placeholder for local drawable or URL
-                genre = listOf("Crime", "Drama"),
-                actors = listOf("Marlon Brando", "Al Pacino", "James Caan"),
-                runtime = "2h 55m",
-                director = "Francis Ford Coppola",
-                releaseDate = "1972",
-                likes = 0,
-                dislikes = 0
-            ),
-            Movie(
-                id = "2",
-                title = "Pulp Fiction",
-                description = "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
-                rating = 8.9,
-                posterUrl = "pulp_fiction_poster",
-                genre = listOf("Crime", "Drama"),
-                actors = listOf("John Travolta", "Uma Thurman", "Samuel L. Jackson"),
-                runtime = "2h 34m",
-                director = "Quentin Tarantino",
-                releaseDate = "1994",
-                likes = 0,
-                dislikes = 0
-            ),
-            Movie(
-                id = "3",
-                title = "The Shawshank Redemption",
-                description = "Over the course of several years, two convicts form a friendship, seeking consolation and, eventually, redemption through basic compassion.",
-                rating = 9.3,
-                posterUrl = "shawshank_poster",
-                genre = listOf("Drama"),
-                actors = listOf("Tim Robbins", "Morgan Freeman", "Bob Gunton"),
-                runtime = "2h 22m",
-                director = "Frank Darabont",
-                releaseDate = "1994",
-                likes = 0,
-                dislikes = 0
-            ),
-            Movie(
-                id = "4",
-                title = "2001: A Space Odyssey",
-                description = "After uncovering a mysterious artifact buried beneath the Lunar surface, mankind sets off on a quest to find its origins with the help of intelligent supercomputer H.A.L. 9000.",
-                rating = 8.3,
-                posterUrl = "space_odyssey_poster",
-                genre = listOf("Sci-Fi", "Adventure"),
-                actors = listOf("Keir Dullea", "Gary Lockwood", "William Sylvester"),
-                runtime = "2h 29m",
-                director = "Stanley Kubrick",
-                releaseDate = "1968",
-                likes = 0,
-                dislikes = 0
-            ),
-            Movie(
-                id = "5",
-                title = "The Wizard of Oz",
-                description = "Dorothy Gale is swept away from a farm in Kansas to a magical land of Oz in a tornado and embarks on a quest with her new friends to see the Wizard.",
-                rating = 8.1,
-                posterUrl = "wizard_oz_poster",
-                genre = listOf("Adventure", "Family", "Fantasy"),
-                actors = listOf("Judy Garland", "Frank Morgan", "Ray Bolger"),
-                runtime = "1h 42m",
-                director = "Victor Fleming",
-                releaseDate = "1939",
-                likes = 0,
-                dislikes = 0
-            )
-        ).shuffled().take(5)
     }
 }

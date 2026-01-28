@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.mobile_systems.android.movienight.data.Movie
+import com.mobile_systems.android.movienight.model.Movie
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
@@ -155,7 +155,7 @@ fun RankingItem(
             ) {
                 // FIXED: Changed Alignment.TopStart to Alignment.CenterStart
                 Text(
-                    text = movie.title,
+                    text = movie.info.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterStart)

@@ -17,6 +17,7 @@ import com.mobile_systems.android.movienight.ui.movienightevent.AddFriendsScreen
 import com.mobile_systems.android.movienight.ui.home.HomeScreen
 import com.mobile_systems.android.movienight.ui.home.HomeViewModel
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
+import com.mobile_systems.android.movienight.ui.MovieViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.MovieNightEventViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.RankingListScreen
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
@@ -34,11 +35,11 @@ enum class MovieNightApp() {
 fun MovieNightApp(
     navController: NavHostController = rememberNavController()
 ) {
+    val movieViewModel: MovieViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val themeViewModel: ThemeViewModel = viewModel()
     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val movieDetailsViewModel: MovieDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val movieNightEventViewModel: MovieNightEventViewModel = viewModel(factory = AppViewModelProvider.Factory)
-
     val themeUiState by themeViewModel.uiState.collectAsState()
 
     MovieNightTheme(darkTheme = themeUiState.isDarkTheme) {
@@ -52,11 +53,13 @@ fun MovieNightApp(
                     HomeScreen(
                         onMovieNightClicked = {
                             navController.navigate(MovieNightApp.AddFriends.name)
-                            movieNightEventViewModel.resetMovieNight() },
+                            movieNightEventViewModel.resetMovieNight()
+                        },
                         homeViewModel = homeViewModel,
                         modifier = Modifier,
                         themeViewModel = themeViewModel,
-                        movieDetailsViewModel = movieDetailsViewModel
+                        movieDetailsViewModel = movieDetailsViewModel,
+                        movieViewModel = movieViewModel
                     )
                 }
                 composable(route = MovieNightApp.AddFriends.name) {

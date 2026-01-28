@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -18,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
+import com.mobile_systems.android.movienight.ui.MovieUiState
+import com.mobile_systems.android.movienight.ui.MovieViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieCarousel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
@@ -33,21 +36,21 @@ fun HomeScreen(
     onMovieNightClicked: () -> Unit,
     modifier: Modifier = Modifier,
     movieDetailsViewModel: MovieDetailsViewModel,
+    movieViewModel: MovieViewModel
 ) {
     val homeUiState by homeViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
     val movieDetailsUiState = movieDetailsViewModel.movieUiState
+    val movieUiState = movieViewModel.movieUiState
 
     val coroutineScope = rememberCoroutineScope()
     val searchState = rememberTextFieldState()
 
     val categories = listOf("Trending Now", "Watchlist", "Action Movies", "Comedy Hits")
 
-    // We use a Box to layer the button over the scrollable content
     Box(modifier = modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
-            // 1. The Top Row (Sticky)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -66,7 +69,6 @@ fun HomeScreen(
                 )
             }
 
-            //Movie lists divided by movie category
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -75,9 +77,10 @@ fun HomeScreen(
                 for (category in categories) {
                     MovieCarousel(
                         title = category,
-                        onMovieClick = { carouselItem ->
+                        movieUiState = movieUiState,
+                        onMovieClick = { movie ->
                             coroutineScope.launch {
-                                movieDetailsViewModel.selectMovie(carouselItem.id)
+                                movieDetailsViewModel.selectMovie(movie.id)
                             }
                         }
                     )
