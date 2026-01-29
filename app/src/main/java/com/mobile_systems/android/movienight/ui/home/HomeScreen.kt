@@ -106,6 +106,7 @@ fun HomeScreen(
                             if (id != null) {
                                 movieDetailsViewModel.selectMovie(id)
                             }
+                            println("DEBUG: Clicked Movie ID is: $id")
                         }
                     )
                 }
@@ -152,8 +153,6 @@ fun MovieCarousel(
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 12.dp)
         )
-
-        // Using LazyRow instead of Carousel to prevent shape morphing
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -172,13 +171,17 @@ fun MovieCarousel(
 }
 
 @Composable
-private fun MovieCard(movie: Movie, onClick: () -> Unit) {
+private fun MovieCard(
+    movie: Movie,
+    onClick: () -> Unit
+) {
     val iconPainter = rememberVectorPainter(image = Icons.Default.Movie)
     val cardShape = MaterialTheme.shapes.extraLarge
 
     Surface(
         modifier = Modifier
             .height(150.dp)
+            .width(260.dp)
             .fillMaxWidth()
             .clip(cardShape),
         shape = cardShape,
@@ -197,7 +200,6 @@ private fun MovieCard(movie: Movie, onClick: () -> Unit) {
             modifier = Modifier.fillMaxSize()
         )
     }
-    // Spacer and Text title have been removed from here
 }
 
 @Composable

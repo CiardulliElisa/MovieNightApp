@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mobile_systems.android.movienight.ui.MovieDetailsUiState
 
-@OptIn(ExperimentalLayoutApi::class) // Needed for FlowRow
 @Composable
 fun MovieDetailsCard(
     movieDetailsUiState: MovieDetailsUiState,
@@ -54,7 +53,7 @@ fun MovieDetailsCard(
             // Header Image
             Box(modifier = Modifier.fillMaxWidth().height(240.dp)) {
                 AsyncImage(
-                    model = movieDetailsUiState.selectedMovie.thumbnail,
+                    model = movieDetailsUiState.selectedMovie.trailer?.thumbnail,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -69,7 +68,7 @@ fun MovieDetailsCard(
 
             Column(modifier = Modifier.padding(20.dp)) {
                 // Title
-                movieDetailsUiState.title?.let {
+                movieDetailsUiState.selectedMovie.title.let {
                     Text(
                         text = it,
                         style = MaterialTheme.typography.headlineMedium,
@@ -79,13 +78,11 @@ fun MovieDetailsCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // --- GENRE LIST ---
-                // FlowRow wraps the items to the next line if there are too many
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    movieDetailsUiState.selectedMovie.genres.forEach { genre ->
+                    movieDetailsUiState.selectedMovie.trailer?.genres?.forEach { genre ->
                         Surface(
                             shape = MaterialTheme.shapes.small,
                             color = MaterialTheme.colorScheme.secondaryContainer,
@@ -123,7 +120,6 @@ fun MovieDetailsCard(
                         Text("Save", style = MaterialTheme.typography.labelMedium)
                     }
 
-                    // Watched Action
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(onClick = onWatchedClicked) {
                             Icon(

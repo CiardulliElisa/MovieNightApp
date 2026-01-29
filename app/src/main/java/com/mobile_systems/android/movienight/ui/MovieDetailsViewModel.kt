@@ -19,18 +19,22 @@ class MovieDetailsViewModel(
         private set
 
     fun selectMovie(movieId: String) {
+        // 1. Trigger the dialog to show immediately
+        movieUiState = movieUiState.copy(id = movieId)
+
         viewModelScope.launch {
             try {
-                // 1. Fetch the FULL response object, not just the title string
-                val title = moviesRepository.getMovieTitle(movieId)
+                // 2. Fetch the full MovieDetails object from your repository
+                val movieData = moviesRepository.getMovieDetails(movieId)
+                println("DEBUG: API Response Title: ${movieData.title}")
+                println("DEBUG: API Response Trailer: ${movieData.trailer}")
 
                 val toWatchEntry = savedMoviesRepository.getMovieToWatchById(movieId).firstOrNull()
                 val watchedEntry = savedMoviesRepository.getWatchedMovieById(movieId).firstOrNull()
 
-                // 2. Map the API data to your UI State
-                movieUiState = MovieDetailsUiState(
-                    id = movieId,
-                    title = title,
+                // 3. MAP THE DATA: This is the missing link!
+                movieUiState = movieUiState.copy(
+                    selectedMovie = movieData,
                     isToWatch = toWatchEntry != null,
                     isWatched = watchedEntry != null
                 )

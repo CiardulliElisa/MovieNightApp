@@ -1,19 +1,14 @@
 package com.mobile_systems.android.movienight.ui
 
 import Movie
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile_systems.android.movienight.data.MoviesRepository
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
 
 sealed interface MovieUiState {
     data class Success(val categories: Map<String, List<Movie>>) : MovieUiState
@@ -49,7 +44,6 @@ class MovieViewModel(private val moviesRepository: MoviesRepository) : ViewModel
                         }
                     } catch (e: Exception) {
                         Log.e("MovieDebug", "Error fetching genre $genre", e)
-                        // We don't stop the whole app, just skip this specific genre
                     }
                 }
 
