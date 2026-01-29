@@ -12,7 +12,7 @@ class OfflineSavedMoviesRepository(private val watchedMovieDao: WatchedMovieDao,
 
     override fun getAllWatchedMovies(): Flow<List<WatchedMovie>> = watchedMovieDao.getAllFavouriteMovies()
 
-    override fun getWatchedMovieById(id: String): Flow<WatchedMovie> = watchedMovieDao.getFavouriteMovieById(id)
+    override fun getWatchedMovieById(id: String): Flow<WatchedMovie?> = watchedMovieDao.getFavouriteMovieById(id)
 
     override suspend fun insertMovieToWatch(movieToWatch: MovieToWatch) = movieToWatchDao.insert(movieToWatch)
 
@@ -22,6 +22,6 @@ class OfflineSavedMoviesRepository(private val watchedMovieDao: WatchedMovieDao,
 
     override fun getAllMoviesToWatch(): Flow<List<MovieToWatch>> = movieToWatchDao.getAllMoviesToWatch()
 
-    override fun getMovieToWatchById(id: String): Flow<MovieToWatch> = movieToWatchDao.getMovieToWatchById(id)
+    override fun getMovieToWatchById(id: String): Flow<MovieToWatch?> = movieToWatchDao.getMovieToWatchById(id)
 
 }

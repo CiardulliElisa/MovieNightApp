@@ -24,5 +24,5 @@ interface MovieToWatchDao {
     fun getAllMoviesToWatch() : Flow<List<MovieToWatch>>
 
     @Query("SELECT * FROM moviesToWatch WHERE id = :id")
-    fun getMovieToWatchById(id: String): Flow<MovieToWatch>
+    fun getMovieToWatchById(id: String): Flow<MovieToWatch?>
 }

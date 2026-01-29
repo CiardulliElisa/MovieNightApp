@@ -7,12 +7,12 @@ interface SavedMoviesRepository {
     suspend fun updateWatchedMovie(watchedMovie: WatchedMovie)
     suspend fun deleteWatchedMovie(watchedMovie: WatchedMovie)
     fun getAllWatchedMovies() : Flow<List<WatchedMovie>>
-    fun getWatchedMovieById(id: String): Flow<WatchedMovie>
+    fun getWatchedMovieById(id: String): Flow<WatchedMovie?>
 
     suspend fun insertMovieToWatch(movieToWatch: MovieToWatch)
     suspend fun updateMovieToWatch(movieToWatch: MovieToWatch)
     suspend fun deleteMovieToWatch(movieToWatch: MovieToWatch)
     fun getAllMoviesToWatch() : Flow<List<MovieToWatch>>
-    fun getMovieToWatchById(id: String): Flow<MovieToWatch>
+    fun getMovieToWatchById(id: String): Flow<MovieToWatch?>
 
 }

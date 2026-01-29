@@ -113,7 +113,6 @@ fun HomeScreen(
                         movies = movieList,
                         isLoading = isCategoryLoading,
                         onMovieClick = { movie ->
-                            // RESTORED: Corrected 'data' to 'kinoMovie'
                             val id = movie.data?.movieId
                             if (id != null) {
                                 movieDetailsViewModel.selectMovie(id)
@@ -124,7 +123,6 @@ fun HomeScreen(
             }
         }
 
-        // RESTORED: Floating Movie Night Button
         MovieNightButton(
             onClick = onMovieNightClicked,
             modifier = Modifier
@@ -132,7 +130,6 @@ fun HomeScreen(
                 .padding(16.dp)
         )
 
-        // RESTORED: Movie Details Dialog
         if (movieDetailsUiState.id != "") {
             Dialog(
                 onDismissRequest = { movieDetailsViewModel.deselectMovie() }

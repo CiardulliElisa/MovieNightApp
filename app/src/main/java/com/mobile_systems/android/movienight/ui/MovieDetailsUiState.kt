@@ -8,7 +8,8 @@ data class MovieDetailsUiState(
     val id: String = "",
     val isFavourite: Boolean = false,
     val isWatched: Boolean = false,
-    val movies : List<Movie> = listOf()
+    val selectedMovie: Movie = Movie(),
+    val title: String? = null,
 )
 
 fun String.toFavouriteMovie() : WatchedMovie = WatchedMovie(
