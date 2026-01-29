@@ -1,6 +1,5 @@
 package com.mobile_systems.android.movienight.model
 
-import androidx.annotation.StringDef
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

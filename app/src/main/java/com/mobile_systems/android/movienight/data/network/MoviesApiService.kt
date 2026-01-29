@@ -13,4 +13,8 @@ interface MoviesApiService {
          */
         @GET("search")
         suspend fun getMovie(@Query("tt") movieTtId: String): Movie
+
+        @GET("trailers")
+        suspend fun getRelevantMovies(@Query("genres") movieTtId: String): List<String>
+
 }

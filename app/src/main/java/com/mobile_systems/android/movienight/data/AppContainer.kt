@@ -14,27 +14,37 @@ interface AppContainer {
 
 class AppDataContainer(private val context: Context) : AppContainer {
 
-    private val baseUrl = "https://imdb.iamidiotareyoutoo.com/"
+    private val imdbUrl = "https://imdb.iamidiotareyoutoo.com/"
+    private val kinoCheckUrl = "https://api.kinocheck.com/"
     private val json = Json {
         ignoreUnknownKeys = true
     }
-    private val retrofit: Retrofit = Retrofit.Builder()
+    private val imdbRetrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl(baseUrl)
+        .baseUrl(imdbUrl)
+        .build()
+
+    private val kinoCheckRetrofit: Retrofit = Retrofit.Builder()
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .baseUrl(kinoCheckUrl)
         .build()
 
     /**
      * Retrofit service object for creating api calls
      */
-    private val retrofitService: MoviesApiService by lazy {
-        retrofit.create(MoviesApiService::class.java)
+    private val imdbRetrofitService: MoviesApiService by lazy {
+        imdbRetrofit.create(MoviesApiService::class.java)
+    }
+
+    private val kinoCheckRetrofitService: MoviesApiService by lazy {
+        kinoCheckRetrofit.create(MoviesApiService::class.java)
     }
 
     /**
      * DI implementation for Mars photos repository
      */
     override val moviesRepository: MoviesRepository by lazy {
-        NetworkMoviesRepository(retrofitService)
+        NetworkMoviesRepository(imdbRetrofitService, kinoCheckRetrofitService)
     }
 
     override val savedMoviesRepository : SavedMoviesRepository by lazy {

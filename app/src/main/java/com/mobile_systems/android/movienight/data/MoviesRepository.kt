@@ -17,9 +17,6 @@ package com.mobile_systems.android.movienight.data
 
 import com.mobile_systems.android.movienight.data.network.MoviesApiService
 import com.mobile_systems.android.movienight.model.Movie
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlin.collections.List
 
 
@@ -29,15 +26,22 @@ import kotlin.collections.List
 interface MoviesRepository {
 
     suspend fun getMovie(id:String) : Movie
+
+    suspend fun getRelevantMovies(genres: String) : List<String>
 }
 
 /**
  * Network Implementation of Repository that fetch mars photos list from marsApi.
  */
 class NetworkMoviesRepository(
-    private val moviesApiService: MoviesApiService
+    private val imdbApiService: MoviesApiService,
+    private val kinoCheckRetrofitService: MoviesApiService
 ) : MoviesRepository {
     override suspend fun getMovie(id: String): Movie {
-        return moviesApiService.getMovie(id)
+        return imdbApiService.getMovie(id)
+    }
+
+    override suspend fun getRelevantMovies(genres: String): List<String> {
+        return kinoCheckRetrofitService.getRelevantMovies(genres)
     }
 }
