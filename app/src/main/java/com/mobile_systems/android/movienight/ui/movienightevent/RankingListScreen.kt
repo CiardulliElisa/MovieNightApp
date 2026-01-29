@@ -130,7 +130,7 @@ fun RankingItem(
 
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp), // Slightly more rounded for a modern look
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
@@ -140,57 +140,61 @@ fun RankingItem(
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp)
-                .height(80.dp), // Less tall for a sleeker list item
+                .padding(8.dp) // Smaller padding to let the image breathe
+                .height(120.dp), // Increased height to make the image "important"
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. WIDESCREEN THUMBNAIL
+            // 1. PROMINENT THUMBNAIL
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(movie.thumbnail)
                     .crossfade(true)
                     .build(),
-                contentDescription = movie.title,
+                contentDescription = null, // Title removed from text, keep description null or use title
                 placeholder = iconPainter,
                 error = iconPainter,
-                contentScale = ContentScale.Crop, // Fills the wider box
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .width(120.dp) // Wider thumbnail
+                    .width(180.dp) // Much wider image
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(12.dp))
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // 2. MOVIE DATA
-            Box(modifier = Modifier.fillMaxSize()) {
-                movie.title?.let {
+            // 2. VOTE DATA (Centered in the remaining space)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Check,
+                        "Likes",
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(24.dp) // Larger icons
+                    )
                     Text(
-                        text = it,
-                        style = MaterialTheme.typography.titleMedium, // Adjusted size for better fit
+                        text = movie.likes.toString(),
+                        style = MaterialTheme.typography.titleLarge, // Larger font
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(Alignment.TopStart),
-                        maxLines = 2
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
 
-                // VOTE COUNTER ROW (Bottom Right)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                ) {
-                    Icon(Icons.Default.Check, "Likes", tint = Color(0xFF4CAF50), modifier = Modifier.size(18.dp))
-                    Text(
-                        text = movie.likes.toString(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 4.dp, end = 12.dp)
-                    )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    Icon(Icons.Default.Close, "Dislikes", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Close,
+                        "Dislikes",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(24.dp)
+                    )
                     Text(
                         text = movie.dislikes.toString(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 4.dp)
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
             }

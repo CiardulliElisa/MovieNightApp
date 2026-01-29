@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.data.MoviesRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -93,24 +94,25 @@ class MovieNightEventViewModel(
     fun startMovieNightEvent() {
         viewModelScope.launch {
             try {
-                // 1. Fetch exactly 20 general movies
-                val movies = moviesRepository.getMovies(20)
+                // This line already acts like an "await"
+                // It pauses the coroutine until the movies arrive
+                val fetchedMovies = moviesRepository.getMovies(20)
 
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        movieList = movies,
-                        // 2. Prepare the session by copying all current friends
-                        // into the 'friendsToVote' queue
-                        friendsToVote = currentState.friends,
-                        isMovieNightFinished = false
-                    )
+                if (fetchedMovies.isNotEmpty()) {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            movieList = fetchedMovies,
+                            friendsToVote = currentState.friends,
+                            isMovieNightFinished = false,
+                            currentMovie = fetchedMovies.first(),
+                            currentMovieIndex = 0,
+                            currentFriend = currentState.friends.randomOrNull(),
+                            showNewFriendDialog = true
+                        )
+                    }
                 }
-
-                // 3. Kick off the first round automatically
-                startMovieNightRound()
-
             } catch (e: Exception) {
-                // Handle network error (e.g., set an error state in UI)
+                android.util.Log.e("MovieNight", "Error fetching movies", e)
             }
         }
     }
@@ -178,29 +180,6 @@ class MovieNightEventViewModel(
                     showNewFriendDialog = true
                 )
             }
-        }
-    }
-
-    // --- MOVIE DETAILS LOGIC ---
-    fun selectMovie(movie: Movie) {
-        _uiState.update { currentState -> currentState.copy(
-            selectedMovie = movie,
-            showMovieDetails = true
-        ) }
-    }
-
-    fun closeMovieDetails() {
-        _uiState.update { currentState -> currentState.copy(
-            selectedMovie = null,
-            showMovieDetails = false
-        ) }
-    }
-
-    fun showMovieDetails() {
-        _uiState.update { currentState -> currentState.copy(
-            selectedMovie = currentState.currentMovie,
-            showMovieDetails = true
-        )
         }
     }
 
