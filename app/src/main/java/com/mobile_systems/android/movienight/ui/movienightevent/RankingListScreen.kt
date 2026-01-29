@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,9 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
@@ -80,14 +86,15 @@ fun RankingListScreen(
                         RankingItem(
                             movie = movie,
                             onMovieClick = { selectedMovie ->
-                            // FIX: Correct access to the ID from your Model
-                            val id = selectedMovie.data?.movieId
-                            if (id != null) {
-                                coroutineScope.launch {
-                                    movieDetailsViewModel.selectMovie(id)
+                                // FIXED: Use kinoMovie?.movieId to match your updated data model
+                                val id = selectedMovie.data?.movieId
+                                if (id != null) {
+                                    coroutineScope.launch {
+                                        movieDetailsViewModel.selectMovie(id)
+                                    }
                                 }
                             }
-                        })
+                        )
                     }
                 }
             }
@@ -119,6 +126,8 @@ fun RankingItem(
     movie: Movie,
     onMovieClick: (Movie) -> Unit,
 ) {
+    val iconPainter = rememberVectorPainter(Icons.Default.Movie)
+
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(12.dp),
@@ -132,69 +141,55 @@ fun RankingItem(
         Row(
             modifier = Modifier
                 .padding(12.dp)
-                .height(120.dp),
+                .height(80.dp), // Less tall for a sleeker list item
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. POSTER PLACEHOLDER
-            Surface(
+            // 1. WIDESCREEN THUMBNAIL
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(movie.thumbnail)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = movie.title,
+                placeholder = iconPainter,
+                error = iconPainter,
+                contentScale = ContentScale.Crop, // Fills the wider box
                 modifier = Modifier
-                    .width(80.dp)
+                    .width(120.dp) // Wider thumbnail
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(8.dp)),
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "FILM",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                }
-            }
+                    .clip(RoundedCornerShape(8.dp))
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             // 2. MOVIE DATA
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 movie.title?.let {
                     Text(
                         text = it,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium, // Adjusted size for better fit
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(Alignment.CenterStart)
+                        modifier = Modifier.align(Alignment.TopStart),
+                        maxLines = 2
                     )
                 }
 
-                // VOTE COUNTER ROW
+                // VOTE COUNTER ROW (Bottom Right)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Likes",
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Default.Check, "Likes", tint = Color(0xFF4CAF50), modifier = Modifier.size(18.dp))
                     Text(
                         text = movie.likes.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.padding(start = 4.dp, end = 16.dp)
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp, end = 12.dp)
                     )
 
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Dislikes",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Default.Close, "Dislikes", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
                     Text(
                         text = movie.dislikes.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 4.dp)
                     )
                 }
