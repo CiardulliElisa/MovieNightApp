@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
@@ -39,8 +37,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
@@ -51,7 +47,6 @@ import com.mobile_systems.android.movienight.ui.MovieViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieNightButton
-import com.mobile_systems.android.movienight.ui.components.MovieSearchBar
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 import kotlinx.coroutines.launch
 
@@ -69,9 +64,8 @@ fun HomeScreen(
     val movieUiState = movieViewModel.movieUiState
 
     val coroutineScope = rememberCoroutineScope()
-    val searchState = rememberTextFieldState()
 
-    val categories = listOf("Drama", "Animation", "Science Fiction")
+    val categories = listOf("Drama", "Animation", "Science Fiction", "Mystery")
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -81,11 +75,6 @@ fun HomeScreen(
                     .padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                MovieSearchBar(
-                    textFieldState = searchState,
-                    onSearch = { query -> /* your search logic */ },
-                    modifier = Modifier.weight(1f)
-                )
 
                 ThemeToggleButton(
                     onThemeToggle = { themeViewModel.toggleDarkTheme() },

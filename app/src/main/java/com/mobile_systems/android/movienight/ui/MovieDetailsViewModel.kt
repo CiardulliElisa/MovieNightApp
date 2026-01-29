@@ -5,12 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mobile_systems.android.movienight.data.MoviesRepository
 import com.mobile_systems.android.movienight.data.SavedMoviesRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class MovieDetailsViewModel(
-    private val savedMoviesRepository: SavedMoviesRepository
+    private val savedMoviesRepository: SavedMoviesRepository,
+    private val moviesRepository: MoviesRepository
 ) : ViewModel() {
 
     var movieUiState by mutableStateOf(MovieDetailsUiState())
@@ -18,15 +20,23 @@ class MovieDetailsViewModel(
 
     fun selectMovie(movieId: String) {
         viewModelScope.launch {
-            val toWatchEntry = savedMoviesRepository.getMovieToWatchById(movieId).firstOrNull()
-            val watchedEntry = savedMoviesRepository.getWatchedMovieById(movieId).firstOrNull()
+            try {
+                // 1. Fetch the FULL response object, not just the title string
+                val title = moviesRepository.getMovieTitle(movieId)
 
-            // Updating the state directly using the setter
-            movieUiState = MovieDetailsUiState(
-                id = movieId,
-                isFavourite = toWatchEntry != null,
-                isWatched = watchedEntry != null
-            )
+                val toWatchEntry = savedMoviesRepository.getMovieToWatchById(movieId).firstOrNull()
+                val watchedEntry = savedMoviesRepository.getWatchedMovieById(movieId).firstOrNull()
+
+                // 2. Map the API data to your UI State
+                movieUiState = MovieDetailsUiState(
+                    id = movieId,
+                    title = title,
+                    isToWatch = toWatchEntry != null,
+                    isWatched = watchedEntry != null
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -35,7 +45,7 @@ class MovieDetailsViewModel(
      */
     fun toggleToWatch() {
         viewModelScope.launch {
-            if (movieUiState.isFavourite) {
+            if (movieUiState.isToWatch) {
                 savedMoviesRepository.deleteMovieToWatch(movieUiState.id.toMovieToWatch())
             } else {
                 savedMoviesRepository.insertMovieToWatch(movieUiState.id.toMovieToWatch())
@@ -65,7 +75,7 @@ class MovieDetailsViewModel(
         val watched = savedMoviesRepository.getWatchedMovieById(id).firstOrNull()
 
         movieUiState = movieUiState.copy(
-            isFavourite = toWatch != null,
+            isToWatch = toWatch != null,
             isWatched = watched != null
         )
     }

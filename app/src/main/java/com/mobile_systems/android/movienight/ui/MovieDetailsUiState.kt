@@ -6,7 +6,7 @@ import com.mobile_systems.android.movienight.data.MovieToWatch
 
 data class MovieDetailsUiState(
     val id: String = "",
-    val isFavourite: Boolean = false,
+    val isToWatch: Boolean = false,
     val isWatched: Boolean = false,
     val selectedMovie: Movie = Movie(),
     val title: String? = null,

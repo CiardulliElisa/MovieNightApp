@@ -1,17 +1,14 @@
 package com.mobile_systems.android.movienight.data
 
 import Movie
-import android.os.Build
-import android.util.Log
 import com.mobile_systems.android.movienight.data.network.MoviesApiService
-import java.time.ZonedDateTime
-import java.time.format.DateTimeParseException
 
 interface MoviesRepository {
     // Change from List<String> to List<MovieFinder>
     suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie>
-
     suspend fun getMovies(count: Int): List<Movie>
+
+    suspend fun getMovieTitle(movieId: String) : String
 }
 
 class NetworkMoviesRepository(
@@ -38,5 +35,10 @@ class NetworkMoviesRepository(
         } catch (e: Exception) {
             emptyList()
         }
+    }
+
+    override suspend fun getMovieTitle(movieId: String): String {
+        val response = kinoCheckRetrofitService.getMovieTitle(movieId)
+        return response.values.first().title
     }
 }

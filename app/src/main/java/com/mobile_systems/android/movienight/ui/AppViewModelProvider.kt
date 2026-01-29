@@ -28,7 +28,8 @@ object AppViewModelProvider {
         }
         initializer {
             MovieDetailsViewModel(
-                movieNightApplication().container.savedMoviesRepository
+                movieNightApplication().container.savedMoviesRepository,
+                moviesRepository = movieNightApplication().container.moviesRepository
             )
         }
 

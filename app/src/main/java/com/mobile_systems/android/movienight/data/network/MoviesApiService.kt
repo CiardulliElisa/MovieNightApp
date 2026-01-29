@@ -1,6 +1,7 @@
 package com.mobile_systems.android.movienight.data.network
 
 import Movie
+import com.mobile_systems.android.movienight.model.MovieTitle
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -21,7 +22,7 @@ interface MoviesApiService {
 
         @GET("trailers")
         suspend fun getMovieTitle(
+                @Query("imdb_id") movieId: String,
                 @Query("language") language: String = "en",
-                @Query("imdb_id") movieId: String
-        )
+        ) : Map<String, MovieTitle>
 }
