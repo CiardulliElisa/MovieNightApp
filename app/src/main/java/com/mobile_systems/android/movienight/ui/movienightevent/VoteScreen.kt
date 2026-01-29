@@ -154,7 +154,7 @@ fun VoteScreen(
                                 .data(movieNightEventUiState.currentMovie?.thumbnail)
                                 .crossfade(true)
                                 .build(),
-                            contentDescription = movieNightEventUiState.currentMovie?.title,
+                            contentDescription = "",
                             // Uses the movie icon you requested earlier as a fallback
                             placeholder = rememberVectorPainter(Icons.Default.Movie),
                             error = rememberVectorPainter(Icons.Default.Movie),
@@ -178,19 +178,19 @@ fun VoteScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
 // 2. THE "H1" TITLE BELOW THE POSTER
-                Text(
-                    text = movieNightEventUiState.currentMovie?.title ?: "Loading...",
-                    // HeadlineLarge gives it that bold "H1" cinematic look
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+//                Text(
+//                    text = movieNightEventUiState.currentMovie?.title ?: "Loading...",
+//                    // HeadlineLarge gives it that bold "H1" cinematic look
+//                    style = MaterialTheme.typography.headlineLarge,
+//                    fontWeight = FontWeight.ExtraBold,
+//                    textAlign = TextAlign.Center,
+//                    color = MaterialTheme.colorScheme.onSurface,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = 24.dp),
+//                    maxLines = 2,
+//                    overflow = TextOverflow.Ellipsis
+//                )
 
                 Spacer(modifier = Modifier.height(40.dp))
 
@@ -240,7 +240,7 @@ fun VoteScreen(
                         },
                         onWatchedClicked = {
                             coroutineScope.launch { movieDetailsViewModel.toggleWatched() }
-                        }
+                        },
                     )
                 }
             }
