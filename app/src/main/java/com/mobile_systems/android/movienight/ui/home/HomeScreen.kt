@@ -204,26 +204,20 @@ private fun MovieCard(
 
 @Composable
 fun LoadingItemPlaceholder() {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
-
     Surface(
         modifier = Modifier
             .height(150.dp)
-            .width(260.dp)
-            .graphicsLayer(alpha = alpha),
+            .width(260.dp),
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
         tonalElevation = 2.dp
     ) {
-        Box(modifier = Modifier.fillMaxSize())
+        Box(contentAlignment = Alignment.Center) {
+            androidx.compose.material3.CircularProgressIndicator(
+                modifier = Modifier.width(32.dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 3.dp
+            )
+        }
     }
 }

@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
@@ -26,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -39,102 +42,106 @@ fun MovieDetailsCard(
     onClose: () -> Unit,
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
+    val movie = movieDetailsUiState.selectedMovie
+
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier
+            .fillMaxWidth(0.95f)
+            .wrapContentHeight(),
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 8.dp
+        tonalElevation = 6.dp
     ) {
-        Column {
-            // Header Image
-            Box(modifier = Modifier.fillMaxWidth().height(240.dp)) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // THE IMAGE CARD
+            Surface(
+                modifier = Modifier
+                    .width(260.dp)
+                    .height(150.dp)
+                    .clip(MaterialTheme.shapes.extraLarge),
+                tonalElevation = 4.dp,
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
                 AsyncImage(
-                    model = movieDetailsUiState.selectedMovie.trailer?.thumbnail,
+                    model = movie.trailer?.thumbnail ?: movie.trailer?.thumbnail, // Fixed fallback
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                IconButton(
-                    onClick = onClose,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // TITLE
+            Text(
+                text = movie.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+
+            // GENRES
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                movie.trailer?.genres?.forEach { genre ->
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        tonalElevation = 2.dp
+                    ) {
+                        Text(
+                            text = genre,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
                 }
             }
 
-            Column(modifier = Modifier.padding(20.dp)) {
-                // Title
-                movieDetailsUiState.selectedMovie.title.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // ACTION ROW
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Save Action
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconButton(onClick = onToWatchClicked) {
+                        Icon(
+                            imageVector = if (movieDetailsUiState.isToWatch)
+                                Icons.Default.Bookmark
+                            else Icons.Default.BookmarkBorder,
+                            contentDescription = "Save",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                    Text("Save", style = MaterialTheme.typography.labelMedium)
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    movieDetailsUiState.selectedMovie.trailer?.genres?.forEach { genre ->
-                        Surface(
-                            shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            tonalElevation = 2.dp
-                        ) {
-                            Text(
-                                text = genre,
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
+                // Watched Action
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconButton(onClick = onWatchedClicked) {
+                        Icon(
+                            imageVector = if (movieDetailsUiState.isWatched)
+                                Icons.Default.Visibility
+                            else Icons.Default.VisibilityOff,
+                            contentDescription = "Watched",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Action Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    // Save Action
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = onToWatchClicked) {
-                            Icon(
-                                imageVector = if (movieDetailsUiState.isToWatch)
-                                    Icons.Default.Bookmark
-                                else Icons.Default.BookmarkBorder,
-                                contentDescription = "Save",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                        Text("Save", style = MaterialTheme.typography.labelMedium)
-                    }
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = onWatchedClicked) {
-                            Icon(
-                                imageVector = if (movieDetailsUiState.isWatched)
-                                    Icons.Default.Visibility
-                                else Icons.Default.VisibilityOff,
-                                contentDescription = "Watched",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                        Text("Watched", style = MaterialTheme.typography.labelMedium)
-                    }
+                    Text("Watched", style = MaterialTheme.typography.labelMedium)
                 }
             }
-        }
-    }
+        } // End of Column
+    } // End of Surface
 }
