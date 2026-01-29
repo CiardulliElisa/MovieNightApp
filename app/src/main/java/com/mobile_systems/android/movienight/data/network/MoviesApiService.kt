@@ -9,12 +9,19 @@ interface MoviesApiService {
         @GET("trailers")
         suspend fun getMoviesByGenre(
                 @Query("genres") movieGenres: String,
+                @Query("page") page: Int,
+                @Query("limit") limit: Int,
                 @Query("language") language: String = "en",
-                @Query("page") limit: Int = 3
         ): Map<String, Movie>
         @GET("trailers")
         suspend fun getMovies(
-                @Query("language") language: String = "en",
-                @Query("page") page: Int = 5
+                @Query("page") page: Int,
+                @Query("language") language: String = "en"
         ) : Map<String, Movie>
+
+        @GET("trailers")
+        suspend fun getMovieTitle(
+                @Query("language") language: String = "en",
+                @Query("imdb_id") movieId: String
+        )
 }
