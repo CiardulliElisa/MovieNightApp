@@ -24,7 +24,6 @@ class NetworkMoviesRepository(
             val responseMap = kinoCheckRetrofitService.getMoviesByGenre(genres, randomPage, limit)
 
             responseMap.values.take(limit).toList()
-
         } catch (e: Exception) {
             emptyList()
         }

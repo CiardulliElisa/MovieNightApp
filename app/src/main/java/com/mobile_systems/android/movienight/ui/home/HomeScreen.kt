@@ -7,7 +7,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +25,9 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,20 +35,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.mobile_systems.android.movienight.R
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.MovieUiState
 import com.mobile_systems.android.movienight.ui.MovieViewModel
@@ -198,44 +190,28 @@ private fun MovieCard(movie: Movie, onClick: () -> Unit) {
     val iconPainter = rememberVectorPainter(image = Icons.Default.Movie)
     val cardShape = MaterialTheme.shapes.extraLarge
 
-    Column(
-        modifier = Modifier.width(260.dp) // Maintain the "Big Card" width
+    Surface(
+        modifier = Modifier
+            .height(150.dp)
+            .fillMaxWidth()
+            .clip(cardShape),
+        shape = cardShape,
+        onClick = onClick,
+        tonalElevation = 4.dp
     ) {
-        Surface(
-            modifier = Modifier
-                .height(150.dp)
-                .fillMaxWidth()
-                .clip(cardShape),
-            shape = cardShape,
-            onClick = onClick,
-            tonalElevation = 4.dp
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(movie.thumbnail)
-                    .crossfade(true)
-                    .build(),
-                error = iconPainter,
-                placeholder = iconPainter,
-                contentDescription = movie.title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Title positioned clearly below the card
-        Text(
-            text = movie.title ?: "Unknown Title",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 4.dp)
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(movie.thumbnail)
+                .crossfade(true)
+                .build(),
+            error = iconPainter,
+            placeholder = iconPainter,
+            contentDescription = movie.title,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
     }
+    // Spacer and Text title have been removed from here
 }
 
 @Composable
