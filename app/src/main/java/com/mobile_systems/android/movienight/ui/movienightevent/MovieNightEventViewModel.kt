@@ -92,8 +92,26 @@ class MovieNightEventViewModel(
 
     fun startMovieNightEvent() {
         viewModelScope.launch {
-            val movies = moviesRepository.getMoviesByGenre("Drama", 10)
+            try {
+                // 1. Fetch exactly 20 general movies
+                val movies = moviesRepository.getMovies(20)
 
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        movieList = movies,
+                        // 2. Prepare the session by copying all current friends
+                        // into the 'friendsToVote' queue
+                        friendsToVote = currentState.friends,
+                        isMovieNightFinished = false
+                    )
+                }
+
+                // 3. Kick off the first round automatically
+                startMovieNightRound()
+
+            } catch (e: Exception) {
+                // Handle network error (e.g., set an error state in UI)
+            }
         }
     }
 
