@@ -7,6 +7,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,10 +19,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
@@ -127,33 +135,62 @@ fun VoteScreen(
 
                 // MOVIE POSTER CARD
                 Card(
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(28.dp),
                     modifier = Modifier
-                        .size(300.dp, 450.dp)
+                        .fillMaxWidth()
+                        .height(220.dp) // Wide and prominent
+                        .padding(horizontal = 16.dp)
                         .clickable {
+                            // FIX: Updated to use kinoMovie.movieId to match your current model
                             movieNightEventUiState.currentMovie?.data?.movieId?.let { id ->
                                 movieDetailsViewModel.selectMovie(id)
                             }
                         },
-                    elevation = CardDefaults.cardElevation(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                    elevation = CardDefaults.cardElevation(16.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = movieNightEventUiState.currentMovie?.title ?: "Loading movie...",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(32.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(movieNightEventUiState.currentMovie?.thumbnail)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = movieNightEventUiState.currentMovie?.title,
+                            // Uses the movie icon you requested earlier as a fallback
+                            placeholder = rememberVectorPainter(Icons.Default.Movie),
+                            error = rememberVectorPainter(Icons.Default.Movie),
+                            contentScale = ContentScale.Crop, // Fills the wide card perfectly
+                            modifier = Modifier.fillMaxSize()
+                        )
+
+                        // Optional: A small "Info" icon to hint that it's clickable
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Details",
+                            tint = Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(16.dp)
+                                .size(24.dp)
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+// 2. THE "H1" TITLE BELOW THE POSTER
+                Text(
+                    text = movieNightEventUiState.currentMovie?.title ?: "Loading...",
+                    // HeadlineLarge gives it that bold "H1" cinematic look
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
 
                 Spacer(modifier = Modifier.height(40.dp))
 
