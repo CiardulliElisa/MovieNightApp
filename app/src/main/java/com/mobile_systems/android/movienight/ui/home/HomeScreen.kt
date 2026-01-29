@@ -1,28 +1,62 @@
 package com.mobile_systems.android.movienight.ui.home
 
+import Movie
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.mobile_systems.android.movienight.R
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.MovieUiState
 import com.mobile_systems.android.movienight.ui.MovieViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
-import com.mobile_systems.android.movienight.ui.components.MovieCarousel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieNightButton
 import com.mobile_systems.android.movienight.ui.components.MovieSearchBar
@@ -38,7 +72,6 @@ fun HomeScreen(
     movieDetailsViewModel: MovieDetailsViewModel,
     movieViewModel: MovieViewModel
 ) {
-    val homeUiState by homeViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
     val movieDetailsUiState = movieDetailsViewModel.movieUiState
     val movieUiState = movieViewModel.movieUiState
@@ -46,10 +79,9 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val searchState = rememberTextFieldState()
 
-    val categories = listOf("Trending Now", "Watchlist", "Action Movies", "Comedy Hits")
+    val categories = listOf("Drama", "Animation", "Science Fiction")
 
     Box(modifier = modifier.fillMaxSize()) {
-
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
@@ -59,7 +91,7 @@ fun HomeScreen(
             ) {
                 MovieSearchBar(
                     textFieldState = searchState,
-                    onSearch = { query -> println(query) },
+                    onSearch = { query -> /* your search logic */ },
                     modifier = Modifier.weight(1f)
                 )
 
@@ -75,12 +107,24 @@ fun HomeScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 for (category in categories) {
+                    val (movieList, isCategoryLoading) = when (movieUiState) {
+                        is MovieUiState.Success -> {
+                            val list = movieUiState.categories[category] ?: emptyList()
+                            list to (movieUiState.categories[category] == null)
+                        }
+                        is MovieUiState.Loading -> emptyList<Movie>() to true
+                        is MovieUiState.Error -> emptyList<Movie>() to false
+                    }
+
                     MovieCarousel(
                         title = category,
-                        movieUiState = movieUiState,
+                        movies = movieList,
+                        isLoading = isCategoryLoading,
                         onMovieClick = { movie ->
-                            coroutineScope.launch {
-                                movieDetailsViewModel.selectMovie(movie.id)
+                            // RESTORED: Corrected 'data' to 'kinoMovie'
+                            val id = movie.data?.movieId
+                            if (id != null) {
+                                movieDetailsViewModel.selectMovie(id)
                             }
                         }
                     )
@@ -88,7 +132,7 @@ fun HomeScreen(
             }
         }
 
-        // Button to start a movie night event
+        // RESTORED: Floating Movie Night Button
         MovieNightButton(
             onClick = onMovieNightClicked,
             modifier = Modifier
@@ -96,6 +140,7 @@ fun HomeScreen(
                 .padding(16.dp)
         )
 
+        // RESTORED: Movie Details Dialog
         if (movieDetailsUiState.id != "") {
             Dialog(
                 onDismissRequest = { movieDetailsViewModel.deselectMovie() }
@@ -112,5 +157,109 @@ fun HomeScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun MovieCarousel(
+    title: String,
+    movies: List<Movie>,
+    isLoading: Boolean,
+    onMovieClick: (Movie) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 12.dp)
+        )
+
+        // Using LazyRow instead of Carousel to prevent shape morphing
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (isLoading) {
+                items(10) {
+                    LoadingItemPlaceholder()
+                }
+            } else {
+                itemsIndexed(movies) { _, movie ->
+                    MovieCard(movie = movie, onClick = { onMovieClick(movie) })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MovieCard(movie: Movie, onClick: () -> Unit) {
+    val iconPainter = rememberVectorPainter(image = Icons.Default.Movie)
+    val cardShape = MaterialTheme.shapes.extraLarge
+
+    Column(
+        modifier = Modifier.width(260.dp) // Maintain the "Big Card" width
+    ) {
+        Surface(
+            modifier = Modifier
+                .height(150.dp)
+                .fillMaxWidth()
+                .clip(cardShape),
+            shape = cardShape,
+            onClick = onClick,
+            tonalElevation = 4.dp
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(movie.thumbnail)
+                    .crossfade(true)
+                    .build(),
+                error = iconPainter,
+                placeholder = iconPainter,
+                contentDescription = movie.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Title positioned clearly below the card
+        Text(
+            text = movie.title ?: "Unknown Title",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+    }
+}
+
+@Composable
+fun LoadingItemPlaceholder() {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
+    Surface(
+        modifier = Modifier
+            .height(150.dp)
+            .width(260.dp)
+            .graphicsLayer(alpha = alpha),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 2.dp
+    ) {
+        Box(modifier = Modifier.fillMaxSize())
     }
 }

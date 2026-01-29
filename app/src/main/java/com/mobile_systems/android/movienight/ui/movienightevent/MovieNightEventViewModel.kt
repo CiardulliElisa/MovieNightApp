@@ -1,5 +1,6 @@
 package com.mobile_systems.android.movienight.ui.movienightevent
 
+import Movie
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.getValue
@@ -11,7 +12,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.data.MoviesRepository
-import com.mobile_systems.android.movienight.model.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -92,42 +92,8 @@ class MovieNightEventViewModel(
 
     fun startMovieNightEvent() {
         viewModelScope.launch {
-            // Start by setting a loading state if you have one,
-            // or just proceed with the fetch
-            try {
-                // 1. Logic to fetch random movies directly using the repository
-                val idPool = (1000000..1500000).take(60).map { "tt$it" }
-                val fetchedMovies = mutableListOf<Movie>()
+            val movies = moviesRepository.getMoviesByGenre("Drama", 10)
 
-                for (id in idPool) {
-                    if (fetchedMovies.size >= 20) break
-                    try {
-                        val movie = moviesRepository.getMovie(id)
-                        if (movie.info.name.isNotBlank() && movie.info.image.isNotBlank()) {
-                            fetchedMovies.add(movie)
-                        }
-                    } catch (e: Exception) {
-                        continue // Skip failed IDs
-                    }
-                }
-
-                // 2. Only start the event if we actually found movies
-                if (fetchedMovies.isNotEmpty()) {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            isMovieNightStarted = true,
-                            movieList = fetchedMovies,
-                            friendsToVote = currentState.friends,
-                            currentMovie = fetchedMovies.firstOrNull(),
-                            currentMovieIndex = 0,
-                            currentFriend = currentState.friends.randomOrNull(),
-                            showNewFriendDialog = true
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
         }
     }
 
@@ -170,7 +136,7 @@ class MovieNightEventViewModel(
         return _uiState.value.movieList.sortedWith(
             compareByDescending<Movie> { it.likes }
                 .thenBy { it.dislikes }
-                .thenBy { it.info.name } // Final tie-breaker: alphabetical order
+                .thenBy { it.data?.movieId }
         )
     }
 
@@ -228,7 +194,7 @@ class MovieNightEventViewModel(
 
         // 2. Update the list to include this updated movie (so the final summary is correct)
         val updatedList = _uiState.value.movieList.map { movieInList ->
-            if (movieInList.id == movie.id) updatedMovie else movieInList
+            if (movieInList.data?.movieId == movie.data?.movieId) updatedMovie else movieInList
         }
 
         // 3. Emit a whole new UI State
@@ -254,7 +220,7 @@ class MovieNightEventViewModel(
 
         // 2. Update the list to include this updated movie (so the final summary is correct)
         val updatedList = _uiState.value.movieList.map { movieInList ->
-            if (movieInList.id == movie.id) updatedMovie else movieInList
+            if (movieInList.data?.movieId == movie.data?.movieId) updatedMovie else movieInList
         }
 
         // 3. Emit a whole new UI State

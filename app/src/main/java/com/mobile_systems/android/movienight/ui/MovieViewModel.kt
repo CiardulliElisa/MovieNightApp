@@ -1,23 +1,22 @@
 package com.mobile_systems.android.movienight.ui
 
+import Movie
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.mobile_systems.android.movienight.MovieNightApplication
-import com.mobile_systems.android.movienight.model.Movie
 import com.mobile_systems.android.movienight.data.MoviesRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
+import java.time.ZonedDateTime
 
 sealed interface MovieUiState {
-    data class Success(val movies: List<Movie>) : MovieUiState
+    data class Success(val categories: Map<String, List<Movie>>) : MovieUiState
     object Error : MovieUiState
     object Loading : MovieUiState
 }
@@ -28,59 +27,41 @@ class MovieViewModel(private val moviesRepository: MoviesRepository) : ViewModel
         private set
 
     init {
-        getRandomMovies(20)
+        fetchAllCategories()
     }
 
-    fun getRandomMovies(count: Int = 20) {
+    private fun fetchAllCategories() {
         viewModelScope.launch {
             movieUiState = MovieUiState.Loading
+            try {
+                val genresToFetch = listOf("Drama", "Animation", "Science Fiction")
 
-            movieUiState = try {
-                // 1. Create the pool of candidate IDs (casting a wide net)
-                val idPool = (1000000..1500000).shuffled().take(count * 3).map { "tt$it" }
-                val validMovies = mutableListOf<Movie>()
+                val resultsMap = mutableMapOf<String, List<Movie>>()
 
-                // 2. Loop until we find enough valid movies
-                for (id in idPool) {
-                    if (validMovies.size >= count) break
-
+                for (genre in genresToFetch) {
                     try {
-                        // Ask repository for a single movie
-                        val movie = moviesRepository.getMovie(id)
+                        val movies: List<Movie> = moviesRepository.getMoviesByGenre(genre, 10)
 
-                        // 3. Only add if it has a name and an image
-                        if (movie.info.name.isNotBlank() && movie.info.image.isNotBlank()) {
-                            validMovies.add(movie)
+                        Log.d("MovieDebug", "Genre: $genre | Items found: ${movies.size}")
+
+                        if (movies.isNotEmpty()) {
+                            resultsMap[genre] = movies
                         }
                     } catch (e: Exception) {
-                        // Skip 404s or bad IDs
-                        continue
+                        Log.e("MovieDebug", "Error fetching genre $genre", e)
+                        // We don't stop the whole app, just skip this specific genre
                     }
                 }
 
-                // 4. Update the UI state with our list
-                if (validMovies.isNotEmpty()) {
-                    MovieUiState.Success(validMovies)
+                movieUiState = if (resultsMap.isNotEmpty()) {
+                    MovieUiState.Success(resultsMap)
                 } else {
                     MovieUiState.Error
                 }
 
-            } catch (e: IOException) {
-                MovieUiState.Error
-            } catch (e: HttpException) {
-                MovieUiState.Error
             } catch (e: Exception) {
-                MovieUiState.Error
-            }
-        }
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as MovieNightApplication)
-                val moviesRepository = application.container.moviesRepository
-                MovieViewModel(moviesRepository = moviesRepository)
+                Log.e("MovieDebug", "Critical failure", e)
+                movieUiState = MovieUiState.Error
             }
         }
     }

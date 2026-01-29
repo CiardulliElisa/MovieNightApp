@@ -1,20 +1,20 @@
 package com.mobile_systems.android.movienight.data.network
 
-import com.mobile_systems.android.movienight.model.Movie
+import Movie
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MoviesApiService {
 
-        /**
-         * Returns a [List] of [Movie] and this method can be called from a Coroutine.
-         * The @GET annotation indicates that the "photos" endpoint will be requested with the GET
-         * HTTP method
-         */
-        @GET("search")
-        suspend fun getMovie(@Query("tt") movieTtId: String): Movie
-
         @GET("trailers")
-        suspend fun getRelevantMovies(@Query("genres") movieTtId: String): List<String>
-
+        suspend fun getMoviesByGenre(
+                @Query("genres") movieGenres: String,
+                @Query("language") language: String = "en",
+                @Query("page") limit: Int = 3
+        ): Map<String, Movie>
+        @GET("trailers")
+        suspend fun getMovies(
+                @Query("language") language: String = "en",
+                @Query("page") page: Int = 5
+        ) : Map<String, Movie>
 }

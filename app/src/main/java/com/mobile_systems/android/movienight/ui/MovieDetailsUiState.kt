@@ -1,7 +1,7 @@
 package com.mobile_systems.android.movienight.ui
 
+import Movie
 import com.mobile_systems.android.movienight.data.WatchedMovie
-import com.mobile_systems.android.movienight.model.Movie
 import com.mobile_systems.android.movienight.data.MovieToWatch
 
 data class MovieDetailsUiState(

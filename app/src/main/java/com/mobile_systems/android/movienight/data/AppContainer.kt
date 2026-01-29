@@ -44,7 +44,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
      * DI implementation for Mars photos repository
      */
     override val moviesRepository: MoviesRepository by lazy {
-        NetworkMoviesRepository(imdbRetrofitService, kinoCheckRetrofitService)
+        NetworkMoviesRepository( kinoCheckRetrofitService)
     }
 
     override val savedMoviesRepository : SavedMoviesRepository by lazy {

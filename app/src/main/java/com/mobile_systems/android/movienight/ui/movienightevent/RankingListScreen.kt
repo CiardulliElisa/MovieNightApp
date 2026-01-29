@@ -1,5 +1,6 @@
 package com.mobile_systems.android.movienight.ui.movienightevent
 
+import Movie
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,13 +22,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.mobile_systems.android.movienight.model.Movie
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieNightEventNavBar
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -78,9 +77,15 @@ fun RankingListScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(sortedMovies) { movie ->
-                        RankingItem(movie = movie, onMovieClick = { selectedMovie ->
-                            coroutineScope.launch {
-                                movieDetailsViewModel.selectMovie(selectedMovie.id)
+                        RankingItem(
+                            movie = movie,
+                            onMovieClick = { selectedMovie ->
+                            // FIX: Correct access to the ID from your Model
+                            val id = selectedMovie.data?.movieId
+                            if (id != null) {
+                                coroutineScope.launch {
+                                    movieDetailsViewModel.selectMovie(id)
+                                }
                             }
                         })
                     }
@@ -153,13 +158,14 @@ fun RankingItem(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // FIXED: Changed Alignment.TopStart to Alignment.CenterStart
-                Text(
-                    text = movie.info.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
+                movie.title?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
+                }
 
                 // VOTE COUNTER ROW
                 Row(

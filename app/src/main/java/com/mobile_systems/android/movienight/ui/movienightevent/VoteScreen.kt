@@ -131,7 +131,7 @@ fun VoteScreen(
                     modifier = Modifier
                         .size(300.dp, 450.dp)
                         .clickable {
-                            movieNightEventUiState.currentMovie?.id?.let { id ->
+                            movieNightEventUiState.currentMovie?.data?.movieId?.let { id ->
                                 movieDetailsViewModel.selectMovie(id)
                             }
                         },
@@ -145,7 +145,7 @@ fun VoteScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = movieNightEventUiState.currentMovie?.info?.name ?: "Loading movie...",
+                            text = movieNightEventUiState.currentMovie?.title ?: "Loading movie...",
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,

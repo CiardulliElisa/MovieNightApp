@@ -1,47 +1,42 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.mobile_systems.android.movienight.data
 
+import Movie
+import android.os.Build
+import android.util.Log
 import com.mobile_systems.android.movienight.data.network.MoviesApiService
-import com.mobile_systems.android.movienight.model.Movie
-import kotlin.collections.List
+import java.time.ZonedDateTime
+import java.time.format.DateTimeParseException
 
-
-/**
- * Repository that fetch mars photos list from marsApi.
- */
 interface MoviesRepository {
+    // Change from List<String> to List<MovieFinder>
+    suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie>
 
-    suspend fun getMovie(id:String) : Movie
-
-    suspend fun getRelevantMovies(genres: String) : List<String>
+    suspend fun getMovies(count: Int): List<Movie>
 }
 
-/**
- * Network Implementation of Repository that fetch mars photos list from marsApi.
- */
 class NetworkMoviesRepository(
-    private val imdbApiService: MoviesApiService,
     private val kinoCheckRetrofitService: MoviesApiService
 ) : MoviesRepository {
-    override suspend fun getMovie(id: String): Movie {
-        return imdbApiService.getMovie(id)
+
+    override suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie> {
+        return try {
+            val responseMap = kinoCheckRetrofitService.getMoviesByGenre(genres)
+
+            responseMap.values.take(limit).toList()
+
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
-    override suspend fun getRelevantMovies(genres: String): List<String> {
-        return kinoCheckRetrofitService.getRelevantMovies(genres)
+    override suspend fun getMovies(count: Int): List<Movie> {
+        return try {
+            val responseMap = kinoCheckRetrofitService.getMovies()
+
+            responseMap.values.take(count).toList()
+
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }
