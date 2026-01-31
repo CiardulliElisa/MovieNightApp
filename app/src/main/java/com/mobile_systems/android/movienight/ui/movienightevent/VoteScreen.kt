@@ -24,7 +24,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
@@ -48,7 +47,7 @@ fun VoteScreen(
 ) {
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
-    val movieDetailsUiState = movieDetailsViewModel.movieUiState
+    val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
 
     val coroutineScope = rememberCoroutineScope()
 

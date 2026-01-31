@@ -13,5 +13,5 @@ data class Movie(
 @Serializable
 data class MovieResource(
     @SerialName("imdb_id")
-    val movieId: String = "",
+    val movieId: String? = "",
 )

@@ -1,12 +1,11 @@
 package com.mobile_systems.android.movienight.data
 
 import Movie
+import MovieDetails
 import com.mobile_systems.android.movienight.data.network.MoviesApiService
-import com.mobile_systems.android.movienight.model.MovieDetails
 import kotlinx.serialization.json.Json
 
 interface MoviesRepository {
-    // Change from List<String> to List<MovieFinder>
     suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie>
     suspend fun getMovies(count: Int): List<Movie>
 

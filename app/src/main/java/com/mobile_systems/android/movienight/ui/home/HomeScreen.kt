@@ -1,12 +1,6 @@
 package com.mobile_systems.android.movienight.ui.home
 
 import Movie
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +28,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -61,7 +54,7 @@ fun HomeScreen(
     movieViewModel: MovieViewModel
 ) {
     val themeUiState by themeViewModel.uiState.collectAsState()
-    val movieDetailsUiState = movieDetailsViewModel.movieUiState
+    val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
     val movieUiState = movieViewModel.movieUiState
     val homeUiState by homeViewModel.homeUiState.collectAsState()
 

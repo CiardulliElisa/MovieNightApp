@@ -1,5 +1,6 @@
 package com.mobile_systems.android.movienight.ui
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,25 +16,23 @@ class MovieDetailsViewModel(
     private val moviesRepository: MoviesRepository
 ) : ViewModel() {
 
-    var movieUiState by mutableStateOf(MovieDetailsUiState())
+    var movieDetailsUiState by mutableStateOf(MovieDetailsUiState())
         private set
 
     fun selectMovie(movieId: String) {
         // 1. Trigger the dialog to show immediately
-        movieUiState = movieUiState.copy(id = movieId)
+        movieDetailsUiState = movieDetailsUiState.copy(id = movieId)
 
         viewModelScope.launch {
             try {
                 // 2. Fetch the full MovieDetails object from your repository
                 val movieData = moviesRepository.getMovieDetails(movieId)
-                println("DEBUG: API Response Title: ${movieData.title}")
-                println("DEBUG: API Response Trailer: ${movieData.trailer}")
 
                 val toWatchEntry = savedMoviesRepository.getMovieToWatchById(movieId).firstOrNull()
                 val watchedEntry = savedMoviesRepository.getWatchedMovieById(movieId).firstOrNull()
 
                 // 3. MAP THE DATA: This is the missing link!
-                movieUiState = movieUiState.copy(
+                movieDetailsUiState = movieDetailsUiState.copy(
                     selectedMovie = movieData,
                     isToWatch = toWatchEntry != null,
                     isWatched = watchedEntry != null
@@ -48,14 +47,21 @@ class MovieDetailsViewModel(
      * Toggles the "To Watch" status in the repository
      */
     fun toggleToWatch() {
+        val state = movieDetailsUiState
+        val movieFromDetails = state.selectedMovie.toMovieToWatch()
+
+// Debug both sources of truth
+        Log.d("ID_CHECK", "State Top-Level ID: ${state.id}")
+        Log.d("ID_CHECK", "Details Object ID: ${state.selectedMovie.movieId}")
+        Log.d("ID_CHECK", "Mapped Entity ID: ${movieFromDetails.id}")
         viewModelScope.launch {
-            if (movieUiState.isToWatch) {
-                savedMoviesRepository.deleteMovieToWatch(movieUiState.selectedMovie.toMovieToWatch())
+            if (movieDetailsUiState.isToWatch) {
+                savedMoviesRepository.deleteMovieToWatch(movieDetailsUiState.selectedMovie.toMovieToWatch())
             } else {
-                savedMoviesRepository.insertMovieToWatch(movieUiState.selectedMovie.toMovieToWatch())
+                savedMoviesRepository.insertMovieToWatch(movieDetailsUiState.selectedMovie.toMovieToWatch())
             }
             // Refresh local state status after DB update
-            updateStatus(movieUiState.id)
+            updateStatus(movieDetailsUiState.id)
         }
     }
 
@@ -64,13 +70,13 @@ class MovieDetailsViewModel(
      */
     fun toggleWatched() {
         viewModelScope.launch {
-            if (movieUiState.isWatched) {
-                savedMoviesRepository.deleteWatchedMovie(movieUiState.selectedMovie.toWatchedMovie())
+            if (movieDetailsUiState.isWatched) {
+                savedMoviesRepository.deleteWatchedMovie(movieDetailsUiState.selectedMovie.toWatchedMovie())
             } else {
-                savedMoviesRepository.insertWatchedMovie(movieUiState.selectedMovie.toWatchedMovie())
+                savedMoviesRepository.insertWatchedMovie(movieDetailsUiState.selectedMovie.toWatchedMovie())
             }
             // Refresh local state status after DB update
-            updateStatus(movieUiState.id)
+            updateStatus(movieDetailsUiState.id)
         }
     }
 
@@ -78,14 +84,14 @@ class MovieDetailsViewModel(
         val toWatch = savedMoviesRepository.getMovieToWatchById(id).firstOrNull()
         val watched = savedMoviesRepository.getWatchedMovieById(id).firstOrNull()
 
-        movieUiState = movieUiState.copy(
+        movieDetailsUiState = movieDetailsUiState.copy(
             isToWatch = toWatch != null,
             isWatched = watched != null
         )
     }
 
     fun deselectMovie() {
-        movieUiState = MovieDetailsUiState()
+        movieDetailsUiState = MovieDetailsUiState()
     }
 }
 

@@ -1,16 +1,17 @@
-package com.mobile_systems.android.movienight.model
-
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class MovieDetails(
-    val id: String = "",
+    @SerialName("imdb_id")
+    val movieId: String = "",
     val title: String = "",
-    val trailer: TrailerInfo? = null
+    @SerialName("trailer")
+    val content: TrailerInfo? = null,
 )
-
 @Serializable
 data class TrailerInfo(
+    @SerialName("thumbnail")
     val thumbnail: String = "",
     val genres: List<String> = emptyList()
 )

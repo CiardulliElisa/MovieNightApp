@@ -1,7 +1,7 @@
 package com.mobile_systems.android.movienight.data.network
 
 import Movie
-import com.mobile_systems.android.movienight.model.MovieDetails
+import MovieDetails
 import retrofit2.http.GET
 import retrofit2.http.Query
 

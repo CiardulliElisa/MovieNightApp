@@ -67,7 +67,7 @@ fun MovieDetailsCard(
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 AsyncImage(
-                    model = movie.trailer?.thumbnail ?: movie.trailer?.thumbnail, // Fixed fallback
+                    model = movie.content?.thumbnail ?: movie.content?.thumbnail, // Fixed fallback
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -89,7 +89,7 @@ fun MovieDetailsCard(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(top = 8.dp)
             ) {
-                movie.trailer?.genres?.forEach { genre ->
+                movie.content?.genres?.forEach { genre ->
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.secondaryContainer,

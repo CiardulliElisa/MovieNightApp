@@ -45,7 +45,7 @@ fun RankingListScreen(
 ) {
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
-    val movieDetailsUiState = movieDetailsViewModel.movieUiState
+    val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
 
     val coroutineScope = rememberCoroutineScope()
 
