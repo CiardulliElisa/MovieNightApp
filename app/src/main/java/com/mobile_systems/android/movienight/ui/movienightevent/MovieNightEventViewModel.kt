@@ -7,12 +7,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.data.MoviesRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -156,7 +154,7 @@ class MovieNightEventViewModel(
         return _uiState.value.movieList.sortedWith(
             compareByDescending<Movie> { it.likes }
                 .thenBy { it.dislikes }
-                .thenBy { it.data?.movieId }
+                .thenBy { it.data.movieId }
         )
     }
 
@@ -191,7 +189,7 @@ class MovieNightEventViewModel(
 
         // 2. Update the list to include this updated movie (so the final summary is correct)
         val updatedList = _uiState.value.movieList.map { movieInList ->
-            if (movieInList.data?.movieId == movie.data?.movieId) updatedMovie else movieInList
+            if (movieInList.data.movieId == movie.data.movieId) updatedMovie else movieInList
         }
 
         // 3. Emit a whole new UI State
@@ -217,7 +215,7 @@ class MovieNightEventViewModel(
 
         // 2. Update the list to include this updated movie (so the final summary is correct)
         val updatedList = _uiState.value.movieList.map { movieInList ->
-            if (movieInList.data?.movieId == movie.data?.movieId) updatedMovie else movieInList
+            if (movieInList.data.movieId == movie.data.movieId) updatedMovie else movieInList
         }
 
         // 3. Emit a whole new UI State

@@ -7,4 +7,5 @@ import androidx.room.PrimaryKey
 data class MovieToWatch (
     @PrimaryKey(autoGenerate = false)
     val id: String,
+    val thumbnail: String? = null,
 )

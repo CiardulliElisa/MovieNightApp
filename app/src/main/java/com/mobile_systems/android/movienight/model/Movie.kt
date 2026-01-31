@@ -3,11 +3,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Movie(
-    val title: String? = null,
     val thumbnail: String? = null,
-    val genres: List<String> = emptyList(),
     @SerialName("resource")
-    val data: MovieResource? = null,
+    val data: MovieResource = MovieResource(),
     val likes: Int = 0,
     val dislikes: Int = 0
 )
@@ -15,5 +13,5 @@ data class Movie(
 @Serializable
 data class MovieResource(
     @SerialName("imdb_id")
-    val movieId: String? = null,
+    val movieId: String = "",
 )

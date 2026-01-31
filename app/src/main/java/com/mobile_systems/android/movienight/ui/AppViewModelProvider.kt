@@ -23,7 +23,8 @@ object AppViewModelProvider {
 
         initializer {
             HomeViewModel(
-                this.createSavedStateHandle()
+                this.createSavedStateHandle(),
+                savedMoviesRepository = movieNightApplication().container.savedMoviesRepository
             )
         }
         initializer {

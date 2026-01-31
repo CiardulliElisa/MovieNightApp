@@ -1,5 +1,8 @@
 package com.mobile_systems.android.movienight.ui.home
 
+import Movie
+import com.mobile_systems.android.movienight.data.MovieToWatch
+
 //The UI State is a simple data class that represents everything the user sees on the screen. If it’s not in the state, it shouldn't be on the screen.
 //
 //What to put in it:
@@ -13,7 +16,5 @@ package com.mobile_systems.android.movienight.ui.home
 //Navigation Events: Sometimes used to trigger a "Go to Details" action.
 
 data class HomeUiState(
-
-    val movieCategories: List<String> = listOf("Watchlist", "Action", "Comedies", "Drama", "Horror"),
-
+    val moviesToWatch: List<Movie> = listOf()
 )

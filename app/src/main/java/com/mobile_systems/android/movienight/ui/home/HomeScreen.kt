@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -62,6 +63,7 @@ fun HomeScreen(
     val themeUiState by themeViewModel.uiState.collectAsState()
     val movieDetailsUiState = movieDetailsViewModel.movieUiState
     val movieUiState = movieViewModel.movieUiState
+    val homeUiState by homeViewModel.homeUiState.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -87,6 +89,20 @@ fun HomeScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
+                //Movies to watch list
+                MovieCarousel(
+                    title = "Watchlist",
+                    movies = homeUiState.moviesToWatch,
+                    isLoading = false,
+                    onMovieClick = { movie ->
+                        val id = movie.data.movieId
+                        if (id != null) {
+                            movieDetailsViewModel.selectMovie(id)
+                        }
+                        println("DEBUG: Clicked Movie ID is: $id")
+                    }
+                )
+
                 for (category in categories) {
                     val (movieList, isCategoryLoading) = when (movieUiState) {
                         is MovieUiState.Success -> {
@@ -195,7 +211,7 @@ private fun MovieCard(
                 .build(),
             error = iconPainter,
             placeholder = iconPainter,
-            contentDescription = movie.title,
+            contentDescription = "",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
@@ -213,7 +229,7 @@ fun LoadingItemPlaceholder() {
         tonalElevation = 2.dp
     ) {
         Box(contentAlignment = Alignment.Center) {
-            androidx.compose.material3.CircularProgressIndicator(
+            CircularProgressIndicator(
                 modifier = Modifier.width(32.dp),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 3.dp
