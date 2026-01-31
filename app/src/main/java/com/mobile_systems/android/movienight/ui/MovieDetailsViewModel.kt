@@ -50,9 +50,9 @@ class MovieDetailsViewModel(
     fun toggleToWatch() {
         viewModelScope.launch {
             if (movieUiState.isToWatch) {
-                savedMoviesRepository.deleteMovieToWatch(movieUiState.selectedMovie.toMovie().toMovieToWatch())
+                savedMoviesRepository.deleteMovieToWatch(movieUiState.selectedMovie.toMovieToWatch())
             } else {
-                savedMoviesRepository.insertMovieToWatch(movieUiState.selectedMovie.toMovie().toMovieToWatch())
+                savedMoviesRepository.insertMovieToWatch(movieUiState.selectedMovie.toMovieToWatch())
             }
             // Refresh local state status after DB update
             updateStatus(movieUiState.id)
@@ -65,9 +65,9 @@ class MovieDetailsViewModel(
     fun toggleWatched() {
         viewModelScope.launch {
             if (movieUiState.isWatched) {
-                savedMoviesRepository.deleteWatchedMovie(movieUiState.selectedMovie.toMovie().toWatchedMovie())
+                savedMoviesRepository.deleteWatchedMovie(movieUiState.selectedMovie.toWatchedMovie())
             } else {
-                savedMoviesRepository.insertWatchedMovie(movieUiState.selectedMovie.toMovie().toWatchedMovie())
+                savedMoviesRepository.insertWatchedMovie(movieUiState.selectedMovie.toWatchedMovie())
             }
             // Refresh local state status after DB update
             updateStatus(movieUiState.id)

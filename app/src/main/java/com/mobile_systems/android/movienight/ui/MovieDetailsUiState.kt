@@ -30,23 +30,17 @@ fun MovieToWatch.toMovie() : Movie = Movie(
     data = MovieResource(movieId = this.id),
 )
 
-fun MovieDetails.toMovie() : Movie = Movie(
+fun MovieDetails.toMovieToWatch() : MovieToWatch = MovieToWatch(
     thumbnail = this.trailer?.thumbnail ?: "",
-    likes = 0,
-    dislikes = 0,
+    id = this.id
+)
+
+fun MovieDetails.toWatchedMovie() : WatchedMovie = WatchedMovie(
+    thumbnail = this.trailer?.thumbnail ?: "",
+    id = this.id
+)
+
+fun WatchedMovie.toMovie() : Movie = Movie(
+    thumbnail =  this.thumbnail,
     data = MovieResource(movieId = this.id)
-
-)
-
-@Serializable
-data class MovieDetails(
-    val id: String = "",
-    val title: String = "",
-    val trailer: TrailerInfo? = null
-)
-
-@Serializable
-data class TrailerInfo(
-    val thumbnail: String = "",
-    val genres: List<String> = emptyList()
 )
