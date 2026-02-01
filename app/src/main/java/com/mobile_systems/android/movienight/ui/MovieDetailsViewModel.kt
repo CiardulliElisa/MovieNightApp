@@ -11,6 +11,8 @@ import com.mobile_systems.android.movienight.data.SavedMoviesRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
+//Manages the logic behind viewing the movie details of a selected movie
+//It handles the display of data from the API and from the local database.
 class MovieDetailsViewModel(
     private val savedMoviesRepository: SavedMoviesRepository,
     private val moviesRepository: MoviesRepository
@@ -19,16 +21,22 @@ class MovieDetailsViewModel(
     var movieDetailsUiState by mutableStateOf(MovieDetailsUiState())
         private set
 
+    //Updates the ui state with the information from the API about the selected movie
+    // and the watched or to watch information about the movie from the local database
     fun selectMovie(movieId: String) {
+
         movieDetailsUiState = movieDetailsUiState.copy(isSelected = true)
 
         viewModelScope.launch {
             try {
+                //Get the movie details from the API
                 val movieData = moviesRepository.getMovieDetails(movieId)
 
+                //Get the watched or to watch information from the local database
                 val toWatchEntry = savedMoviesRepository.getMovieToWatchById(movieId).firstOrNull()
                 val watchedEntry = savedMoviesRepository.getWatchedMovieById(movieId).firstOrNull()
 
+                //Update the ui state with the new information about the selected movie
                 movieDetailsUiState = movieDetailsUiState.copy(
                     selectedMovie = movieData,
                     isToWatch = toWatchEntry != null,
@@ -40,9 +48,7 @@ class MovieDetailsViewModel(
         }
     }
 
-    /**
-     * Toggles the "To Watch" status in the repository
-     */
+    //Adds or removes the selected movie from the to watch database
     fun toggleToWatch() {
         viewModelScope.launch {
             if (movieDetailsUiState.isToWatch) {
@@ -55,9 +61,7 @@ class MovieDetailsViewModel(
         }
     }
 
-    /**
-     * Toggles the "Watched" status in the repository
-     */
+    //Adds or removes the selected movie from the watched database
     fun toggleWatched() {
         viewModelScope.launch {
             if (movieDetailsUiState.isWatched) {
@@ -70,6 +74,7 @@ class MovieDetailsViewModel(
         }
     }
 
+    //Makes sure the ui status remains updated with the local database information
     private suspend fun updateStatus(id: String) {
         val toWatch = savedMoviesRepository.getMovieToWatchById(id).firstOrNull()
         val watched = savedMoviesRepository.getWatchedMovieById(id).firstOrNull()
@@ -80,6 +85,7 @@ class MovieDetailsViewModel(
         )
     }
 
+    //Deselects the selected movie and resets the ui state
     fun deselectMovie() {
         movieDetailsUiState = MovieDetailsUiState()
     }
