@@ -22,10 +22,10 @@ interface SavedMoviesDAO {
     suspend fun delete(watchedMovie: WatchedMovie)
 
     @Query("SELECT * FROM watchedMovies")
-    fun getAllFavouriteMovies() : Flow<List<WatchedMovie>>
+    fun getAllWatchedMovies() : Flow<List<WatchedMovie>>
 
     @Query("SELECT * FROM watchedMovies WHERE id = :id")
-    fun getFavouriteMovieById(id: String): Flow<WatchedMovie?>
+    fun getWatchedMovieById(id: String): Flow<WatchedMovie?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(movieToWatch: MovieToWatch)
