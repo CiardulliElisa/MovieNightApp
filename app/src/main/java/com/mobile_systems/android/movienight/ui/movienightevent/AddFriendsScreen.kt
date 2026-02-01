@@ -18,7 +18,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mobile_systems.android.movienight.MovieNightApp
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.FriendIcon
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
@@ -33,14 +32,15 @@ fun AddFriendsScreen(
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Ui states
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val friendNameInput = movieNightEventViewModel.friendNameInput
-
-    val scrollState = rememberScrollState()
     val focusRequester = remember { FocusRequester() }
+    val scrollState = rememberScrollState()
+
+    val friendNameInput = movieNightEventViewModel.friendNameInput
 
     // Only navigate to the voting page if the movie night has actually started
     LaunchedEffect(movieNightEventUiState.isMovieNightStarted) {
@@ -49,25 +49,25 @@ fun AddFriendsScreen(
         }
     }
 
+    //If the movie night cannot start due to an error show the user an error message
     LaunchedEffect(movieNightEventUiState.errorMessage) {
-        movieNightEventUiState.errorMessage?.let { message ->
+        if(movieNightEventUiState.errorMessage != null) {
             snackbarHostState.showSnackbar(
-                message = message,
+                message = movieNightEventUiState.errorMessage!!,
                 duration = SnackbarDuration.Short
             )
-            // Tell the ViewModel the error has been "consumed"
             movieNightEventViewModel.consumeError()
+
         }
     }
 
-    // --- ADD FRIEND DIALOG ---
+    // Dialog that shows up to enter a name
     if (movieNightEventUiState.showEnterNameDialog) {
         AlertDialog(
             onDismissRequest = { movieNightEventViewModel.closeDialog() },
             title = { Text("Add Friend") },
             text = {
                 OutlinedTextField(
-                    // Use VM state
                     value = friendNameInput,
                     onValueChange = { movieNightEventViewModel.updateFriendName(it) },
                     label = { Text("Name") },
@@ -153,7 +153,7 @@ fun AddFriendsScreen(
 
             ThemeToggleButton(
                 onThemeToggle = { themeViewModel.toggleDarkTheme() },
-                isDarkTheme = themeUiState.isDarkTheme
+                isDarkTheme = themeUiState.isDarkTheme,
             )
         }
 
