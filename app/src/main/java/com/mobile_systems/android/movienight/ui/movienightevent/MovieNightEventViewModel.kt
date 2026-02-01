@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.data.MoviesRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -84,6 +85,7 @@ class MovieNightEventViewModel(
                 }
 
             } catch (e: Exception) {
+                delay(500)
                 _uiState.update { currentState ->
                     currentState.copy(
                         errorMessage = "Check your internet connection and try again",
