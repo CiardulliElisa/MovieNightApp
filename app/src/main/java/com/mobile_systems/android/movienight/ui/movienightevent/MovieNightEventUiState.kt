@@ -5,20 +5,23 @@ import com.mobile_systems.android.movienight.data.Friend
 
 data class MovieNightEventUiState(
 
-    //Adding and removing friends to movie night event
+    //Adding and removing friends to participate in the movie night event
     val friends: List<Friend> = emptyList(),
     val friendToRemove: Friend? = null,
     val showEnterNameDialog: Boolean = false,
 
-    //Handling movie night event
-    val isMovieNightStarted: Boolean = false,
-    val movieList: List<Movie> = emptyList(),
+    //Tracking the current movie and whose turn it is to vote
     val currentMovie: Movie? = null,
     val currentFriend: Friend? = null,
+    val movieList: List<Movie> = emptyList(),
     val showNewFriendDialog: Boolean = false,
-    val isMovieNightFinished: Boolean = false,
-    val friendsToVote: List<Friend> = friends,
     val currentMovieIndex : Int = 0,
+    val friendsToVote: List<Friend> = friends,
 
+    //Handling movie night event start and end
+    val isMovieNightStarted: Boolean = false,
+    val isMovieNightFinished: Boolean = false,
+
+    //Handles errors in the movie night event
     val errorMessage: String? = null
 )
