@@ -7,46 +7,37 @@ import retrofit2.Retrofit
 import kotlinx.serialization.json.Json
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
+//Defines all available data sources in the application
 interface AppContainer {
     val savedMoviesRepository: SavedMoviesRepository
     val moviesRepository : MoviesRepository
 }
 
+//Sets up all repositories in the application, so they are not built more than once
 class AppDataContainer(private val context: Context) : AppContainer {
 
-    private val imdbUrl = "https://imdb.iamidiotareyoutoo.com/"
     private val kinoCheckUrl = "https://api.kinocheck.com/"
     private val json = Json {
         ignoreUnknownKeys = true
     }
-    private val imdbRetrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl(imdbUrl)
-        .build()
 
+    //Configures Retrofit to handle network communication and JSON parsing.
     private val kinoCheckRetrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .baseUrl(kinoCheckUrl)
         .build()
 
-    /**
-     * Retrofit service object for creating api calls
-     */
-    private val imdbRetrofitService: MoviesApiService by lazy {
-        imdbRetrofit.create(MoviesApiService::class.java)
-    }
-
+    //Creates the connection to the MoviesApiService
     private val kinoCheckRetrofitService: MoviesApiService by lazy {
         kinoCheckRetrofit.create(MoviesApiService::class.java)
     }
 
-    /**
-     * DI implementation for Mars photos repository
-     */
+    //Creates the repository that is used to fetch data from the APIs
     override val moviesRepository: MoviesRepository by lazy {
         NetworkMoviesRepository( kinoCheckRetrofitService)
     }
 
+    //The repository that is used to fetch data from the local offline database
     override val savedMoviesRepository : SavedMoviesRepository by lazy {
         OfflineSavedMoviesRepository(
             SavedMoviesDatabase.getDatabase(context).watchedMovieDao(),
