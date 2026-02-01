@@ -80,12 +80,13 @@ fun MovieNightApp(
                         modifier = Modifier,
                         themeViewModel = themeViewModel,
                         movieDetailsViewModel = movieDetailsViewModel,
-                        movieViewModel = movieViewModel
+                        movieViewModel = movieViewModel,
                     )
                 }
                 composable(route = MovieNightApp.AddFriends.name) {
                     AddFriendsScreen(
                         onStartClicked = {
+                            movieNightEventViewModel.startMovieNightEvent()
                             navController.navigate(MovieNightApp.Vote.name) {
                                 popUpTo(MovieNightApp.AddFriends.name) { inclusive = true }
                             }
@@ -108,7 +109,8 @@ fun MovieNightApp(
                         onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
                         modifier = Modifier,
                         themeViewModel = themeViewModel,
-                        movieDetailsViewModel = movieDetailsViewModel
+                        movieDetailsViewModel = movieDetailsViewModel,
+                        contentType = contentType
                     )
                 }
                 composable(route = MovieNightApp.RankingList.name) {
@@ -117,7 +119,8 @@ fun MovieNightApp(
                         onHomeClicked = { navController.navigate(MovieNightApp.Home.name) },
                         onTryAgainClicked = { navController.navigate(MovieNightApp.AddFriends.name) },
                         themeViewModel = themeViewModel,
-                        movieDetailsViewModel = movieDetailsViewModel
+                        movieDetailsViewModel = movieDetailsViewModel,
+                        contentType = contentType
                     )
                 }
             }

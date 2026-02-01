@@ -37,6 +37,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -83,15 +85,17 @@ fun HomeScreen(
     val categories = listOf("Drama", "Animation", "Science Fiction", "Mystery")
     val isDetailVisible = movieDetailsUiState.id != ""
 
+    LaunchedEffect(Unit) {
+        movieDetailsViewModel.deselectMovie()
+    }
+
     Row(modifier = modifier.fillMaxSize()) {
 
         // --- LEFT SIDE: MOVIE LISTS ---
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ThemeToggleButton(
@@ -101,9 +105,7 @@ fun HomeScreen(
                 }
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 ) {
                     MovieCarousel(
                         title = "Watchlist",
@@ -138,19 +140,17 @@ fun HomeScreen(
 
             MovieNightButton(
                 onClick = onMovieNightClicked,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             )
         }
 
-        // --- RIGHT SIDE / DIALOG: DETAIL VIEW ---
+        // --- RIGHT SIDE / DIALOG: ADAPTIVE DETAIL VIEW ---
         if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
-            // SIDE PANEL DESIGN (For Tablet/Landscape)
+            // SIDE PANEL DESIGN (For Expanded Screens)
             AnimatedVisibility(
                 visible = isDetailVisible,
                 enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
-                modifier = Modifier.width(400.dp).fillMaxHeight()
+                modifier = Modifier.width(420.dp).fillMaxHeight()
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -162,12 +162,12 @@ fun HomeScreen(
                         onClose = { movieDetailsViewModel.deselectMovie() },
                         onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
                         onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
-                        isExpanded = true
+                        isExpandedSidePane = true
                     )
                 }
             }
         } else if (isDetailVisible) {
-            // MODAL DIALOG DESIGN (For Phone)
+            // DIALOG DESIGN (For Compact Screens)
             Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
                 MovieDetailsCard(
                     movieDetailsUiState = movieDetailsUiState,
@@ -181,7 +181,8 @@ fun HomeScreen(
 }
 
 /**
- * Shared Content Logic used by both the Side Panel and the Dialog
+ * Shared Content Logic used by both the Side Panel and the Dialog.
+ * Internal to this screen or can be moved to a component file.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -190,30 +191,29 @@ fun MovieDetailsContent(
     onClose: () -> Unit,
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
-    isExpanded: Boolean
+    isExpandedSidePane: Boolean
 ) {
     val movie = movieDetailsUiState.selectedMovie
-    val iconPainter = rememberVectorPainter(image = Icons.Default.Movie)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(if (isExpanded) 32.dp else 24.dp)
+            .padding(if (isExpandedSidePane) 32.dp else 24.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // CLOSE BUTTON
+        // CLOSE BUTTON (The 'X')
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             IconButton(onClick = onClose) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
         }
 
-        // IMAGE
+        // IMAGE - Larger in side pane
         Surface(
             modifier = Modifier
-                .width(if (isExpanded) 320.dp else 260.dp)
-                .height(if (isExpanded) 180.dp else 150.dp)
+                .width(if (isExpandedSidePane) 340.dp else 260.dp)
+                .height(if (isExpandedSidePane) 200.dp else 150.dp)
                 .clip(MaterialTheme.shapes.extraLarge),
             tonalElevation = 4.dp,
             shape = MaterialTheme.shapes.extraLarge
@@ -231,7 +231,7 @@ fun MovieDetailsContent(
         // TITLE
         Text(
             text = movie.title,
-            style = if (isExpanded) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall,
+            style = if (isExpandedSidePane) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
@@ -258,7 +258,7 @@ fun MovieDetailsContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(if (isExpanded) 48.dp else 24.dp))
+        Spacer(modifier = Modifier.height(if (isExpandedSidePane) 48.dp else 24.dp))
 
         // ACTIONS
         Row(
@@ -328,19 +328,14 @@ private fun MovieCard(movie: Movie, onClick: () -> Unit) {
     val iconPainter = rememberVectorPainter(image = Icons.Default.Movie)
     val cardShape = MaterialTheme.shapes.extraLarge
     Surface(
-        modifier = Modifier
-            .height(150.dp)
-            .width(260.dp)
-            .fillMaxWidth()
-            .clip(cardShape),
+        modifier = Modifier.height(150.dp).width(260.dp).fillMaxWidth().clip(cardShape),
         shape = cardShape,
         onClick = onClick,
         tonalElevation = 4.dp
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(movie.thumbnail)
-                .crossfade(true).build(),
+                .data(movie.thumbnail).crossfade(true).build(),
             error = iconPainter,
             placeholder = iconPainter,
             contentDescription = "",
@@ -353,9 +348,7 @@ private fun MovieCard(movie: Movie, onClick: () -> Unit) {
 @Composable
 fun LoadingItemPlaceholder() {
     Surface(
-        modifier = Modifier
-            .height(150.dp)
-            .width(260.dp),
+        modifier = Modifier.height(150.dp).width(260.dp),
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
         tonalElevation = 2.dp
