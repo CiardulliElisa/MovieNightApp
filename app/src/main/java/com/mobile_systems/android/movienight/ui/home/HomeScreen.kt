@@ -117,16 +117,18 @@ fun HomeScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    //Watchlist movies list
-                    item {
-                        MovieCarousel(
-                            title = "Watchlist",
-                            movies = homeUiState.moviesToWatch,
-                            isLoading = false,
-                            onMovieClick = { movie ->
-                                movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
-                            }
-                        )
+                    //Watchlist movies list, only appear if there are movies in the watchlist
+                    if(homeUiState.moviesToWatch.isNotEmpty()) {
+                        item {
+                            MovieCarousel(
+                                title = "Watchlist",
+                                movies = homeUiState.moviesToWatch,
+                                isLoading = false,
+                                onMovieClick = { movie ->
+                                    movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
+                                }
+                            )
+                        }
                     }
 
                     //Lists of movies per genre
