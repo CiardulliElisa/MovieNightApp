@@ -51,6 +51,7 @@ fun VoteScreen(
     movieDetailsViewModel: MovieDetailsViewModel,
     contentType: MovieNightContentType
 ) {
+
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
     val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState

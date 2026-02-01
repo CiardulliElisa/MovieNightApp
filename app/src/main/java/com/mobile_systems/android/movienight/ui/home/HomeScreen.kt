@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -91,7 +92,6 @@ fun HomeScreen(
 
     Row(modifier = modifier.fillMaxSize()) {
 
-        // --- LEFT SIDE: MOVIE LISTS ---
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
@@ -104,34 +104,43 @@ fun HomeScreen(
                     )
                 }
 
-                Column(
-                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    MovieCarousel(
-                        title = "Watchlist",
-                        movies = homeUiState.moviesToWatch,
-                        isLoading = false,
-                        onMovieClick = { movie ->
-                            movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
-                        }
-                    )
+                    // 3. Add the Watchlist
+                    item {
+                        MovieCarousel(
+                            title = "Watchlist",
+                            movies = homeUiState.moviesToWatch,
+                            isLoading = false,
+                            onMovieClick = { movie ->
+                                movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
+                            }
+                        )
+                    }
 
-                    for (category in categories) {
-                        val (movieList, isCategoryLoading) = when (movieUiState) {
+                    items(categories.size) { index ->
+                        // 1. Get the category name (e.g., "Animation")
+                        val categoryName = categories[index]
+
+                        // 2. Extract the actual list of movies from the ViewModel's state
+                        val (movieList, isCategoryLoading) = when (val state = movieUiState) {
                             is MovieUiState.Success -> {
-                                val list = movieUiState.categories[category] ?: emptyList()
-                                list to (movieUiState.categories[category] == null)
+                                // Use the name to find the list of movies in the map
+                                val list = state.categories[categoryName] ?: emptyList()
+                                list to false
                             }
                             is MovieUiState.Loading -> emptyList<Movie>() to true
                             is MovieUiState.Error -> emptyList<Movie>() to false
                         }
 
+                        // 3. Pass the data to the Carousel
                         MovieCarousel(
-                            title = category,
+                            title = categoryName,
                             movies = movieList,
                             isLoading = isCategoryLoading,
                             onMovieClick = { movie ->
-                                movie.data?.movieId?.let { movieDetailsViewModel.selectMovie(it) }
+                                movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
                             }
                         )
                     }
