@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,14 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
@@ -84,7 +80,10 @@ fun RankingListScreen(
                         }
                     }
                 }
-                MovieNightEventNavBar(onHomeClick = onHomeClicked, onTryAgainClick = { movieNightEventViewModel.resetMovieNight(); onTryAgainClicked() })
+                MovieNightEventNavBar(
+                    onTryAgainClick = { movieNightEventViewModel.resetMovieNight(); onTryAgainClicked() },
+                    onHomeClick = onHomeClicked,
+                )
             }
 
             if (contentType == MovieNightContentType.LIST_AND_DETAIL) {

@@ -6,7 +6,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -41,6 +40,7 @@ import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 import com.mobile_systems.android.movienight.ui.utils.MovieNightContentType
 import kotlinx.coroutines.launch
 
+/**This screen is used in turns by the various participants of a movie night event to vote on the movies they like and dislike*/
 /**This screen is used in turns by the various participants of a movie night event to vote on the movies they like and dislike*/
 @Composable
 fun VoteScreen(
@@ -78,98 +78,126 @@ fun VoteScreen(
 
     //
     Scaffold(modifier = modifier.fillMaxSize()) {
-        innerPadding ->
+            innerPadding ->
 
-        //Contains the voting process and the side panel (on non compact devices)
-        Row(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
-        ) {
-            //Left column - main page
-            Column(
-                modifier = Modifier.weight(1f).fillMaxHeight()
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+
+            //Contains the voting process and the side panel (on non compact devices)
+            Row(
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Theme Toggle Button
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.End
+                //Left column - main page
+                Column(
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 ) {
-                    ThemeToggleButton(isDarkTheme = themeUiState.isDarkTheme, onThemeToggle = { themeViewModel.toggleDarkTheme() })
-                }
-
-                // Header: participant's name and icon, as chosen in the screen before (add friends)
-                movieNightEventUiState.currentFriend?.let { friend ->
+                    // Theme Toggle Button
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        //Participant's Icon
-                        Surface(
-                            shape = CircleShape,
-                            color = friend.color,
-                            modifier = Modifier.size(48.dp)
+                        ThemeToggleButton(isDarkTheme = themeUiState.isDarkTheme, onThemeToggle = { themeViewModel.toggleDarkTheme() })
+                    }
+
+                    // Header: participant's name and icon, as chosen in the screen before (add friends)
+                    movieNightEventUiState.currentFriend?.let { friend ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            // FIX: Centering the content horizontally
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                         ) {
-                            Icon(
-                                friend.icon,
-                                "Randomly selected icon",
-                                tint = Color.White,
-                                modifier = Modifier.padding(10.dp))
+                            //Participant's Icon
+                            Surface(
+                                shape = CircleShape,
+                                color = friend.color,
+                                modifier = Modifier.size(48.dp)
+                            ) {
+                                Icon(
+                                    friend.icon,
+                                    "Randomly selected icon",
+                                    tint = Color.White,
+                                    modifier = Modifier.padding(10.dp))
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            //Participant's name
+                            Text(
+                                friend.name,
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.ExtraBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
+                    }
 
-                        Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.weight(1f))
 
-                        //Participant's name
-                        Text(
-                            friend.name,
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.ExtraBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                    // Movie Picture - thumbnail
+                    Card(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .height(220.dp)
+                                .padding(horizontal = 16.dp)
+                                .clickable { movieNightEventUiState.currentMovie?.data?.movieId?.let { id -> movieDetailsViewModel.selectMovie(id) } },
+                        elevation = CardDefaults.cardElevation(16.dp)
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current).data(movieNightEventUiState.currentMovie?.thumbnail).crossfade(true).build(),
+                                contentDescription = "",
+                                placeholder = rememberVectorPainter(Icons.Default.Movie),
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                            //Small info icon on the clickable movie picture
+                            Icon(Icons.Default.Info, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(24.dp))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    // Voting row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        //Dislike button
+                        VoteButton(Icons.Default.Close, Color.Red, { movieNightEventViewModel.updateDislikes() }, "Dislike")
+
+                        //Likes Button
+                        VoteButton(Icons.Default.Check, Color(0xFF4CAF50), { movieNightEventViewModel.updateLikes() }, "Like")
+                    }
+                    Spacer(modifier = Modifier.weight(1.2f))
+                }
+
+                // Right Column - Movie details (Side panel logic)
+                if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
+                    AnimatedVisibility(
+                        visible = isDetailVisible,
+                        enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+                    ) {
+                        Surface(
+                            modifier = Modifier.width(400.dp).fillMaxHeight(),
+                            color = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 2.dp
+                        ) {
+                            MovieDetailsContent(
+                                movieDetailsUiState = movieDetailsUiState,
+                                onClose = { movieDetailsViewModel.deselectMovie() },
+                                onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
+                                onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
+                                isExpandedSidePane = true
+                            )
+                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Movie Picture - thumbnail
-                Card(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .height(220.dp)
-                            .padding(horizontal = 16.dp)
-                        .clickable { movieNightEventUiState.currentMovie?.data?.movieId?.let { id -> movieDetailsViewModel.selectMovie(id) } },
-                    elevation = CardDefaults.cardElevation(16.dp)
-                ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current).data(movieNightEventUiState.currentMovie?.thumbnail).crossfade(true).build(),
-                            contentDescription = "",
-                            placeholder = rememberVectorPainter(Icons.Default.Movie),
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                        //Small info icon on the clickable movie picture
-                        Icon(Icons.Default.Info, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(24.dp))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                // Voting row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    //Dislike button
-                    VoteButton(Icons.Default.Close, Color.Red, { movieNightEventViewModel.updateDislikes() }, "Dislike")
-
-                    //Likes Button
-                    VoteButton(Icons.Default.Check, Color(0xFF4CAF50), { movieNightEventViewModel.updateLikes() }, "Like")
-                }
-                Spacer(modifier = Modifier.weight(1.2f))
             }
 
+            //A dialog box appears when a new user should start their voting round
             if (movieNightEventUiState.showNewFriendDialog) {
                 TurnConfirmationDialog(
                     friendName = movieNightEventUiState.currentFriend?.name,
@@ -178,49 +206,77 @@ fun VoteScreen(
                     onConfirm = { movieNightEventViewModel.closeNewFriendDialog() }
                 )
             }
+
+            //Navigation bar that allows to go to home page or back to the beginning of a new movie night
+            MovieNightEventNavBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onHomeClick = { movieNightEventViewModel.resetMovieNight(); onHomeClicked() },
+                onTryAgainClick = { movieNightEventViewModel.resetMovieNight(); onTryAgainClicked() }
+            )
         }
-        MovieNightEventNavBar(
-            onHomeClick = { movieNightEventViewModel.resetMovieNight(); onHomeClicked() },
-            onTryAgainClick = { movieNightEventViewModel.resetMovieNight(); onTryAgainClicked() }
-        )
     }
 
-    // RIGHT COLUMN (DETAIL)
-    if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
-        AnimatedVisibility(visible = isDetailVisible, enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn()) {
-            Surface(modifier = Modifier.width(400.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 2.dp) {
-                MovieDetailsContent(
-                    movieDetailsUiState = movieDetailsUiState,
-                    onClose = { movieDetailsViewModel.deselectMovie() },
-                    onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
-                    onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
-                    isExpandedSidePane = true
-                )
-            }
-        }
-    } else if (isDetailVisible) {
+    // Show the smaller dialog box with a compact device
+    if (contentType != MovieNightContentType.LIST_AND_DETAIL && isDetailVisible) {
         Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
-            MovieDetailsCard(movieDetailsUiState = movieDetailsUiState, onClose = { movieDetailsViewModel.deselectMovie() }, onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } }, onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
+            MovieDetailsCard(
+                movieDetailsUiState = movieDetailsUiState,
+                onClose = { movieDetailsViewModel.deselectMovie() },
+                onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
+                onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
         }
     }
 }
 
+//Buttons use to vote on a movie
 @Composable
 fun VoteButton(icon: ImageVector, tint: Color, onClick: () -> Unit, contentDescription: String) {
-    IconButton(onClick = onClick, modifier = Modifier.size(80.dp)) {
-        Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface, shadowElevation = 6.dp, tonalElevation = 2.dp) {
-            Icon(icon, contentDescription, tint = tint, modifier = Modifier.size(54.dp).padding(12.dp))
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.size(80.dp)) {
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 6.dp
+        ) {
+            Icon(icon, contentDescription,
+                tint = tint,
+                modifier = Modifier.size(54.dp).padding(12.dp))
         }
     }
 }
 
+//Dialog box to confirm the start of a new round with a new user
 @Composable
 fun TurnConfirmationDialog(friendName: String?, friendIcon: ImageVector?, friendColor: Color?, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = { },
-        icon = { friendIcon?.let { Icon(it, null, tint = friendColor ?: Color.Gray, modifier = Modifier.size(64.dp)) } },
-        title = { Text("It's ${friendName ?: "Someone"}'s Turn!", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
-        text = { Text("Pass the phone to $friendName. Ready to vote?", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
-        confirmButton = { Button(onClick = onConfirm, modifier = Modifier.fillMaxWidth()) { Text("I'm Ready!") } }
+        //Icon for the participant
+        icon = {
+            friendIcon?.let {
+            Icon(
+                it,
+                "Friend Icon",
+                tint = friendColor ?: Color.Gray,
+                modifier = Modifier.size(64.dp))
+            }
+        },
+        //Name of the participant
+        title = {
+            Text("It's ${friendName}'s turn!",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth())
+                },
+        text = {
+            Text("Ready to vote?",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()) },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.fillMaxWidth()) {
+                Text("Ready!")
+            }
+        }
     )
 }

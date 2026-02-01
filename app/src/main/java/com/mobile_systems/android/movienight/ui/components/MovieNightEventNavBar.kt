@@ -8,13 +8,15 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 @Composable
 fun MovieNightEventNavBar(
     onTryAgainClick: () -> Unit,
-    onHomeClick: () -> Unit
+    onHomeClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    NavigationBar {
+    NavigationBar(modifier = modifier) {
         NavigationBarItem(
             selected = false,
             onClick = onHomeClick,
