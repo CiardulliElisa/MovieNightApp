@@ -131,9 +131,7 @@ fun RankingListScreen(
                 }
                 //If the screen is compact show a dialog box with the movie details
             } else if (isDetailVisible) {
-                Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
-                    MovieDetailsCard(movieDetailsUiState = movieDetailsUiState, onClose = { movieDetailsViewModel.deselectMovie() }, onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } }, onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
-                }
+                MovieDetailsCard(movieDetailsUiState = movieDetailsUiState, onClose = { movieDetailsViewModel.deselectMovie() }, onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } }, onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
             }
         }
     }

@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.mobile_systems.android.movienight.ui.MovieDetailsUiState
 
@@ -45,25 +46,29 @@ fun MovieDetailsCard(
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
 ) {
-    //The base of the dialog box
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth(0.95f)
-            .wrapContentHeight(),
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 6.dp
+    Dialog(
+        onDismissRequest = onClose
     ) {
-        //The actual information about the movie
-        MovieDetailsContent(
-            movieDetailsUiState = movieDetailsUiState,
-            onClose = onClose,
-            onToWatchClicked = onToWatchClicked,
-            onWatchedClicked = onWatchedClicked,
-        )
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .wrapContentHeight(),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp
+        ) {
+            //The actual information about the movie
+            MovieDetailsContent(
+                movieDetailsUiState = movieDetailsUiState,
+                onClose = onClose,
+                onToWatchClicked = onToWatchClicked,
+                onWatchedClicked = onWatchedClicked,
+            )
+        }
     }
 }
 
+//Contains the information about a movie: picture, title, genres, if it has been watched or is in the watchlist
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MovieDetailsContent(

@@ -218,13 +218,11 @@ fun VoteScreen(
 
     // Show the smaller dialog box with a compact device
     if (contentType != MovieNightContentType.LIST_AND_DETAIL && isDetailVisible) {
-        Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
-            MovieDetailsCard(
-                movieDetailsUiState = movieDetailsUiState,
-                onClose = { movieDetailsViewModel.deselectMovie() },
-                onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
-                onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
-        }
+        MovieDetailsCard(
+            movieDetailsUiState = movieDetailsUiState,
+            onClose = { movieDetailsViewModel.deselectMovie() },
+            onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
+            onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
     }
 }
 

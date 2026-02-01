@@ -165,14 +165,12 @@ fun HomeScreen(
             }
         } else if (isDetailVisible) {
             // Dialog design for compact devices
-            Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
-                MovieDetailsCard(
-                    movieDetailsUiState = movieDetailsUiState,
-                    onClose = { movieDetailsViewModel.deselectMovie() },
-                    onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
-                    onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
-                )
-            }
+            MovieDetailsCard(
+                movieDetailsUiState = movieDetailsUiState,
+                onClose = { movieDetailsViewModel.deselectMovie() },
+                onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
+                onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
+            )
         }
     }
 }
