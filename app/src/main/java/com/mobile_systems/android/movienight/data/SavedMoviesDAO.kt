@@ -21,9 +21,11 @@ interface SavedMoviesDAO {
     @Delete
     suspend fun delete(watchedMovie: WatchedMovie)
 
+    //Gets all the watched movies from the database
     @Query("SELECT * FROM watchedMovies")
     fun getAllWatchedMovies() : Flow<List<WatchedMovie>>
 
+    //Gets a specific watched movie from the database
     @Query("SELECT * FROM watchedMovies WHERE id = :id")
     fun getWatchedMovieById(id: String): Flow<WatchedMovie?>
 
@@ -36,9 +38,11 @@ interface SavedMoviesDAO {
     @Delete
     suspend fun delete(movieToWatch: MovieToWatch)
 
+    //Gets all the movies to watch from the database
     @Query("SELECT * FROM moviesToWatch")
     fun getAllMoviesToWatch() : Flow<List<MovieToWatch>>
 
+    //Gets a specific movie to watch from the database
     @Query("SELECT * FROM moviesToWatch WHERE id = :id")
     fun getMovieToWatchById(id: String): Flow<MovieToWatch?>
 }
