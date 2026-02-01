@@ -37,7 +37,6 @@ fun AddFriendsScreen(
     val themeUiState by themeViewModel.uiState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val focusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
 
     val friendNameInput = movieNightEventViewModel.friendNameInput
@@ -63,32 +62,12 @@ fun AddFriendsScreen(
 
     // Dialog that shows up to enter a name
     if (movieNightEventUiState.showEnterNameDialog) {
-        AlertDialog(
-            onDismissRequest = { movieNightEventViewModel.closeDialog() },
-            title = { Text("Add Friend") },
-            text = {
-                OutlinedTextField(
-                    value = friendNameInput,
-                    onValueChange = { movieNightEventViewModel.updateFriendName(it) },
-                    label = { Text("Name") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { movieNightEventViewModel.addFriend() }) {
-                    Text("Add")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { movieNightEventViewModel.closeDialog() }) {
-                    Text("Cancel")
-                }
-            }
+        AddFriendDialog(
+            friendNameInput = friendNameInput,
+            onNameChange = { movieNightEventViewModel.updateFriendName(it) },
+            onConfirm = { movieNightEventViewModel.addFriend() },
+            onDismiss = { movieNightEventViewModel.closeDialog() }
         )
-        LaunchedEffect(Unit) { focusRequester.requestFocus() }
     }
 
     Box(
@@ -184,4 +163,45 @@ fun AddFriendsScreen(
             }
         }
     }
+}
+
+//Dialog box to enter the name of a new participant to the movie night event
+@Composable
+fun AddFriendDialog(
+    friendNameInput: String,
+    onNameChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Friend") },
+        text = {
+            OutlinedTextField(
+                value = friendNameInput,
+                onValueChange = onNameChange,
+                label = { Text("Name") },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
