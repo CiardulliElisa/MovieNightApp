@@ -19,6 +19,6 @@ data class MovieNightEventUiState(
     val isMovieNightFinished: Boolean = false,
     val friendsToVote: List<Friend> = friends,
     val currentMovieIndex : Int = 0,
-    val showMovieDetails: Boolean = false,
-    val selectedMovie: Movie? = null,
+
+    val errorMessage: String? = null
 )

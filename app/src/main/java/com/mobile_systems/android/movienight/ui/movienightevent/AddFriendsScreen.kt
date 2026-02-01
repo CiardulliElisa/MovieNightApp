@@ -18,6 +18,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mobile_systems.android.movienight.MovieNightApp
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.FriendIcon
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
@@ -25,6 +26,7 @@ import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddFriendsScreen(
+    onNavigateToVote: () -> Unit,
     movieNightEventViewModel: MovieNightEventViewModel,
     themeViewModel : ThemeViewModel,
     onStartClicked: () -> Unit,
@@ -34,10 +36,29 @@ fun AddFriendsScreen(
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val friendNameInput = movieNightEventViewModel.friendNameInput
 
     val scrollState = rememberScrollState()
     val focusRequester = remember { FocusRequester() }
+
+    // Only navigate to the voting page if the movie night has actually started
+    LaunchedEffect(movieNightEventUiState.isMovieNightStarted) {
+        if (movieNightEventUiState.isMovieNightStarted) {
+            onNavigateToVote()
+        }
+    }
+
+    LaunchedEffect(movieNightEventUiState.errorMessage) {
+        movieNightEventUiState.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            // Tell the ViewModel the error has been "consumed"
+            movieNightEventViewModel.consumeError()
+        }
+    }
 
     // --- ADD FRIEND DIALOG ---
     if (movieNightEventUiState.showEnterNameDialog) {
@@ -135,6 +156,12 @@ fun AddFriendsScreen(
                 isDarkTheme = themeUiState.isDarkTheme
             )
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+                .padding(bottom = 90.dp)
+        )
 
         // START BUTTON
         if (movieNightEventUiState.friends.isNotEmpty()) {

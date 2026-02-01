@@ -47,6 +47,52 @@ class MovieNightEventViewModel(
     var friendNameInput by mutableStateOf("")
         private set
 
+    /**This completely reset a movie night event*/
+    fun resetMovieNight() {
+        _uiState.value = MovieNightEventUiState()
+    }
+
+    /** Starts a new movie night event by:
+     * - fetching the movies to vote on from the API,
+     * - defining who will vote based on the friends gathered elsewhere
+     * - defining the first person to vote and the first movie to vote on
+     * - showing the start of new round dialog
+     */
+    fun startMovieNightEvent() {
+
+        // Fetch movies for the movie night in the background
+        viewModelScope.launch {
+            try {
+                val fetchedMovies = moviesRepository.getMovies(10)
+
+                //The movie night event is started by defining on which movies to vote, who will vote
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isMovieNightStarted = true,
+                        movieList = fetchedMovies,
+                        friendsToVote = currentState.friends,
+                        currentMovie = fetchedMovies.first(),
+                        currentMovieIndex = 0,
+                        currentFriend = currentState.friends.randomOrNull(),
+                        showNewFriendDialog = true,
+                    )
+                }
+
+            } catch (e: Exception) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        errorMessage = "Check your internet connection and try again",
+                    )
+                }
+            }
+        }
+    }
+
+    /**Resets the error message after it has been viewed*/
+    fun consumeError() {
+        _uiState.update { currentState -> currentState.copy(errorMessage = null) }
+    }
+
     fun updateFriendName(newName: String) {
         friendNameInput = newName
     }
@@ -89,42 +135,6 @@ class MovieNightEventViewModel(
         _uiState.update { it.copy(friendToRemove = null) }
     }
 
-    fun startMovieNightEvent() {
-        viewModelScope.launch {
-            try {
-                // This line already acts like an "await"
-                // It pauses the coroutine until the movies arrive
-                val fetchedMovies = moviesRepository.getMovies(20)
-
-                if (fetchedMovies.isNotEmpty()) {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            movieList = fetchedMovies,
-                            friendsToVote = currentState.friends,
-                            isMovieNightFinished = false,
-                            currentMovie = fetchedMovies.first(),
-                            currentMovieIndex = 0,
-                            currentFriend = currentState.friends.randomOrNull(),
-                            showNewFriendDialog = true
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("MovieNight", "Error fetching movies", e)
-            }
-        }
-    }
-
-    fun startMovieNightRound() {
-        if (_uiState.value.movieList.isEmpty()) return
-        _uiState.update { currentState -> currentState.copy(
-            currentMovie = currentState.movieList.firstOrNull(),
-            currentMovieIndex = 0,
-            currentFriend = currentState.friendsToVote.randomOrNull(),
-            showNewFriendDialog = true
-        ) }
-    }
-
     fun closeNewFriendDialog() {
         _uiState.update { currentState -> currentState.copy(showNewFriendDialog = false) }
     }
@@ -144,12 +154,6 @@ class MovieNightEventViewModel(
         ) }
     }
 
-    /**
-     * Takes the current movie list and returns a version sorted by popularity.
-     * Sorting logic:
-     * 1. Most Likes (Primary)
-     * 2. Least Dislikes (Secondary tie-breaker)
-     */
     fun getSortedRankingList(): List<Movie> {
         return _uiState.value.movieList.sortedWith(
             compareByDescending<Movie> { it.likes }
@@ -201,10 +205,6 @@ class MovieNightEventViewModel(
         }
 
         updateCurrentMovie()
-    }
-
-    fun resetMovieNight() {
-        _uiState.value = MovieNightEventUiState()
     }
 
     fun updateDislikes() {

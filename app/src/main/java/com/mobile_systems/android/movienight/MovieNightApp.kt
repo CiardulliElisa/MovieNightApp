@@ -39,7 +39,7 @@ fun MovieNightApp(
     windowSize: WindowWidthSizeClass
 ) {
 
-    //Create view models using the factory
+    //Create view models using the view model provider
     val movieViewModel: MovieViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val movieDetailsViewModel: MovieDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -48,6 +48,7 @@ fun MovieNightApp(
     val themeViewModel: ThemeViewModel = viewModel()
     val themeUiState by themeViewModel.uiState.collectAsState()
 
+    // Determine the content type to display based on the window size
     val contentType: MovieNightContentType = when (windowSize) {
         WindowWidthSizeClass.Compact -> {
             MovieNightContentType.LIST_ONLY
@@ -63,9 +64,11 @@ fun MovieNightApp(
         }
     }
 
+    //The theme for the entire app is determined
     MovieNightTheme(darkTheme = themeUiState.isDarkTheme) {
         Surface(modifier = Modifier.fillMaxSize())
         {
+            //Define the various destinations for the navigation
             NavHost(
                 navController = navController,
                 startDestination = MovieNightApp.Home.name,
@@ -87,16 +90,12 @@ fun MovieNightApp(
                 }
                 composable(route = MovieNightApp.AddFriends.name) {
                     AddFriendsScreen(
-                        onStartClicked = {
-                            movieNightEventViewModel.startMovieNightEvent()
-                            navController.navigate(MovieNightApp.Vote.name) {
-                                popUpTo(MovieNightApp.AddFriends.name) { inclusive = true }
-                            }
-                        },
-                        onBackClicked = {navController.popBackStack()},
+                        onStartClicked = {movieNightEventViewModel.startMovieNightEvent() },
+                        onBackClicked = { navController.popBackStack() },
                         movieNightEventViewModel = movieNightEventViewModel,
                         themeViewModel = themeViewModel,
-                        modifier = Modifier
+                        modifier = Modifier,
+                        onNavigateToVote = { navController.navigate(MovieNightApp.Vote.name) }
                     )
                 }
                 composable(route = MovieNightApp.Vote.name) {
