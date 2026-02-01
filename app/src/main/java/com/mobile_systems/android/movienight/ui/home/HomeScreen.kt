@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -61,6 +62,7 @@ import com.mobile_systems.android.movienight.ui.MovieUiState
 import com.mobile_systems.android.movienight.ui.MovieViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
+import com.mobile_systems.android.movienight.ui.components.MovieDetailsContent
 import com.mobile_systems.android.movienight.ui.components.MovieNightButton
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 import com.mobile_systems.android.movienight.ui.utils.MovieNightContentType
@@ -88,6 +90,7 @@ fun HomeScreen(
     val categories = movieViewModel.getCategories()
     val isDetailVisible = movieDetailsUiState.isSelected
 
+    // To avoid that selected movies from other screens are still selected on this screen
     LaunchedEffect(Unit) {
         movieDetailsViewModel.deselectMovie()
     }
@@ -103,6 +106,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
+                    //Button to change the theme of the app
                     ThemeToggleButton(
                         onThemeToggle = { themeViewModel.toggleDarkTheme() },
                         isDarkTheme = themeUiState.isDarkTheme
@@ -155,7 +159,7 @@ fun HomeScreen(
             )
         }
 
-        //Movie details view
+        //Movie details view (responsive)
         if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
             // Side panel design for non compact devices
             AnimatedVisibility(
@@ -164,7 +168,7 @@ fun HomeScreen(
                 modifier = Modifier.width(420.dp).fillMaxHeight()
             ) {
                 Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    color = MaterialTheme.colorScheme.surface,
                     tonalElevation = 2.dp,
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -191,116 +195,7 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun MovieDetailsContent(
-    movieDetailsUiState: MovieDetailsUiState,
-    onClose: () -> Unit,
-    onToWatchClicked: () -> Unit,
-    onWatchedClicked: () -> Unit,
-    isExpandedSidePane: Boolean
-) {
-    val movie = movieDetailsUiState.selectedMovie
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(if (isExpandedSidePane) 32.dp else 24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // CLOSE BUTTON (The 'X')
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
-            }
-        }
-
-        // IMAGE - Larger in side pane
-        Surface(
-            modifier = Modifier
-                .width(if (isExpandedSidePane) 340.dp else 260.dp)
-                .height(if (isExpandedSidePane) 200.dp else 150.dp)
-                .clip(MaterialTheme.shapes.extraLarge),
-            tonalElevation = 4.dp,
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            AsyncImage(
-                model = movie.content?.thumbnail,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // TITLE
-        Text(
-            text = movie.title,
-            style = if (isExpandedSidePane) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-
-        // GENRES
-        FlowRow(
-            horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
-        ) {
-            movie.content?.genres?.forEach { genre ->
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                ) {
-                    Text(
-                        text = genre,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(if (isExpandedSidePane) 48.dp else 24.dp))
-
-        // ACTIONS
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            DetailActionItem(
-                label = "Save",
-                icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                onClick = onToWatchClicked
-            )
-            DetailActionItem(
-                label = "Watched",
-                icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                onClick = onWatchedClicked
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailActionItem(label: String, icon: ImageVector, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        IconButton(onClick = onClick) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-        Text(label, style = MaterialTheme.typography.labelMedium)
-    }
-}
-
+// Carousel of movies, each movie is clickable
 @Composable
 fun MovieCarousel(
     title: String,
@@ -310,11 +205,14 @@ fun MovieCarousel(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
+
+        //Label of the movie carousel
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 12.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
+        //The actual list of movies
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -322,7 +220,7 @@ fun MovieCarousel(
             if (isLoading) {
                 items(10) { LoadingItemPlaceholder() }
             } else {
-                itemsIndexed(movies) { _, movie ->
+                items(movies) { movie ->
                     MovieCard(movie = movie, onClick = { onMovieClick(movie) })
                 }
             }
@@ -330,10 +228,16 @@ fun MovieCarousel(
     }
 }
 
+//A single item representing a movie in the movie carousel
 @Composable
-private fun MovieCard(movie: Movie, onClick: () -> Unit) {
+private fun MovieCard(
+    movie: Movie,
+    onClick: () -> Unit
+) {
+
     val iconPainter = rememberVectorPainter(image = Icons.Default.Movie)
     val cardShape = MaterialTheme.shapes.extraLarge
+
     Surface(
         modifier = Modifier.height(150.dp).width(260.dp).fillMaxWidth().clip(cardShape),
         shape = cardShape,
@@ -341,30 +245,30 @@ private fun MovieCard(movie: Movie, onClick: () -> Unit) {
         tonalElevation = 4.dp
     ) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(movie.thumbnail).crossfade(true).build(),
+            model = movie.thumbnail,
             error = iconPainter,
             placeholder = iconPainter,
-            contentDescription = "",
+            contentDescription = "Movie Poster",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
     }
 }
 
+//This is an empty movie card, used as placeholder while the movie loads. It only contains a spinner.
 @Composable
 fun LoadingItemPlaceholder() {
+    val cardShape = MaterialTheme.shapes.extraLarge
     Surface(
-        modifier = Modifier.height(150.dp).width(260.dp),
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        tonalElevation = 2.dp
+        modifier = Modifier.height(150.dp).width(260.dp).fillMaxWidth().clip(cardShape),
+        shape = cardShape,
+        tonalElevation = 4.dp
     ) {
         Box(contentAlignment = Alignment.Center) {
             CircularProgressIndicator(
                 modifier = Modifier.width(32.dp),
                 color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 3.dp
+                strokeWidth = 4.dp
             )
         }
     }

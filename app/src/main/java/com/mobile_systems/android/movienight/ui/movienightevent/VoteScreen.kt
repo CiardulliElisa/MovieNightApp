@@ -34,9 +34,9 @@ import coil.request.ImageRequest
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
+import com.mobile_systems.android.movienight.ui.components.MovieDetailsContent
 import com.mobile_systems.android.movienight.ui.components.MovieNightEventNavBar
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
-import com.mobile_systems.android.movienight.ui.home.MovieDetailsContent
 import com.mobile_systems.android.movienight.ui.utils.MovieNightContentType
 import kotlinx.coroutines.launch
 

@@ -1,7 +1,6 @@
 package com.mobile_systems.android.movienight.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -31,8 +30,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mobile_systems.android.movienight.ui.MovieDetailsUiState
@@ -155,6 +156,116 @@ fun MovieDetailsContent(
                 onClick = onWatchedClicked
             )
         }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun MovieDetailsContent(
+    movieDetailsUiState: MovieDetailsUiState,
+    onClose: () -> Unit,
+    onToWatchClicked: () -> Unit,
+    onWatchedClicked: () -> Unit,
+    isExpandedSidePane: Boolean
+) {
+    val movie = movieDetailsUiState.selectedMovie
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(if (isExpandedSidePane) 32.dp else 24.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // CLOSE BUTTON (The 'X')
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = "Close")
+            }
+        }
+
+        // IMAGE - Larger in side pane
+        Surface(
+            modifier = Modifier
+                .width(if (isExpandedSidePane) 340.dp else 260.dp)
+                .height(if (isExpandedSidePane) 200.dp else 150.dp)
+                .clip(MaterialTheme.shapes.extraLarge),
+            tonalElevation = 4.dp,
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            AsyncImage(
+                model = movie.content?.thumbnail,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // TITLE
+        Text(
+            text = movie.title,
+            style = if (isExpandedSidePane) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+
+        // GENRES
+        FlowRow(
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
+        ) {
+            movie.content?.genres?.forEach { genre ->
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                ) {
+                    Text(
+                        text = genre,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(if (isExpandedSidePane) 48.dp else 24.dp))
+
+        // ACTIONS
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            DetailActionItem(
+                label = "Save",
+                icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                onClick = onToWatchClicked
+            )
+            DetailActionItem(
+                label = "Watched",
+                icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                onClick = onWatchedClicked
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailActionItem(label: String, icon: ImageVector, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        IconButton(onClick = onClick) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+        Text(label, style = MaterialTheme.typography.labelMedium)
     }
 }
 
