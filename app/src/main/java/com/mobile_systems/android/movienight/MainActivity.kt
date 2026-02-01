@@ -8,11 +8,10 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import com.mobile_systems.android.movienight.ui.theme.MovieNightTheme
 
-//If it’s about how things look (colors, padding, animations), put it in the UI/Composable.
-//
-//If it’s about what data is shown (names, dates, loading spinners), put it in the UI State.
-//
-//If it’s about getting or changing that data, put it in the ViewModel.
+/**
+* The main UI entry point of the app.
+ * It also determines the size of the screen to be used in other screens.
+*/
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
