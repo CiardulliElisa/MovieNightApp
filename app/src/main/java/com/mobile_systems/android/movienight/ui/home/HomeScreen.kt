@@ -106,7 +106,7 @@ fun HomeScreen(
                 // Lists of movies
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 80.dp)
+                    contentPadding = PaddingValues(bottom = 85.dp)
                 ) {
                     //Watchlist movies list, only appear if there are movies in the watchlist
                     if(homeUiState.moviesToWatch.isNotEmpty()) {
