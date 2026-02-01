@@ -1,6 +1,7 @@
 package com.mobile_systems.android.movienight.ui.movienightevent
 
 import Movie
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.getValue
@@ -63,27 +64,33 @@ class MovieNightEventViewModel(
         // Fetch movies for the movie night in the background
         viewModelScope.launch {
             try {
+
                 val fetchedMovies = moviesRepository.getMovies(10)
 
-                //The movie night event is started by defining on which movies to vote, who will vote
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isMovieNightStarted = true,
-                        movieList = fetchedMovies,
-                        friendsToVote = currentState.friends,
-                        currentMovie = fetchedMovies.first(),
-                        currentMovieIndex = 0,
-                        currentFriend = currentState.friends.randomOrNull(),
-                        showNewFriendDialog = true,
-                    )
+                //The movie night only starts if the movies were successfully fetched
+                if(!fetchedMovies.isEmpty()) {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            errorMessage = null,
+                            isMovieNightStarted = true,
+                            movieList = fetchedMovies,
+                            friendsToVote = currentState.friends,
+                            currentMovie = fetchedMovies.first(),
+                            currentMovieIndex = 0,
+                            currentFriend = currentState.friends.randomOrNull(),
+                            showNewFriendDialog = true,
+                        )
+                    }
+                } else {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            errorMessage = "Check your internet connection and try again",
+                        )
+                    }
                 }
 
             } catch (e: Exception) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        errorMessage = "Check your internet connection and try again",
-                    )
-                }
+                Log.d("MovieNightEventViewModel", "Error fetching movies")
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.mobile_systems.android.movienight
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Surface
@@ -74,6 +75,7 @@ fun MovieNightApp(
                 startDestination = MovieNightApp.Home.name,
                 modifier = Modifier.safeDrawingPadding()
             ) {
+                // From the home page navigate to the add friends page and reset the movie night event to prepare for a new one
                 composable(route = MovieNightApp.Home.name) {
                     HomeScreen(
                         contentType = contentType,
@@ -88,17 +90,26 @@ fun MovieNightApp(
                         movieViewModel = movieViewModel,
                     )
                 }
+                //From the add friends page when a new movie night is ready navigate to the vote page
+                // Also navigate back to the home page
                 composable(route = MovieNightApp.AddFriends.name) {
                     AddFriendsScreen(
                         onStartClicked = {movieNightEventViewModel.startMovieNightEvent() },
+                        onNavigateToVote = { navController.navigate(MovieNightApp.Vote.name) },
                         onBackClicked = { navController.popBackStack() },
                         movieNightEventViewModel = movieNightEventViewModel,
                         themeViewModel = themeViewModel,
                         modifier = Modifier,
-                        onNavigateToVote = { navController.navigate(MovieNightApp.Vote.name) }
                     )
                 }
+                //From the vote page navigate if the movie night is finished navigate to the final rankings page
+                // Or navigate back to the add friends page or the home page through the navigation buttons
+                // Once the movie night is finished all information is lost about the vote pages and add friends page
                 composable(route = MovieNightApp.Vote.name) {
+                    BackHandler {
+                        movieNightEventViewModel.resetMovieNight()
+                        navController.popBackStack()
+                    }
                     VoteScreen(
                         movieNightEventViewModel = movieNightEventViewModel,
                         onMovieNightFinished = {
@@ -114,6 +125,7 @@ fun MovieNightApp(
                         contentType = contentType
                     )
                 }
+                //From the final rankings page navigate back to the home page
                 composable(route = MovieNightApp.RankingList.name) {
                     RankingListScreen(
                         movieNightEventViewModel = movieNightEventViewModel,

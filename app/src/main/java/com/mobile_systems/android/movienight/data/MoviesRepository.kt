@@ -8,7 +8,6 @@ import kotlinx.serialization.json.Json
 interface MoviesRepository {
     suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie>
     suspend fun getMovies(count: Int): List<Movie>
-
     suspend fun getMovieDetails(movieId: String) : MovieDetails
 }
 

@@ -57,7 +57,6 @@ fun RankingListScreen(
     val coroutineScope = rememberCoroutineScope()
     val isDetailVisible = movieDetailsUiState.id != ""
 
-    // --- RESET SIDEBAR ON ENTRY ---
     LaunchedEffect(Unit) {
         movieDetailsViewModel.deselectMovie()
     }
@@ -78,7 +77,7 @@ fun RankingListScreen(
                     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(sortedMovies) { movie ->
                             RankingItem(movie = movie, onMovieClick = { selectedMovie ->
-                                selectedMovie.data?.movieId?.let { id ->
+                                selectedMovie.data.movieId?.let { id ->
                                     coroutineScope.launch { movieDetailsViewModel.selectMovie(id) }
                                 }
                             })
