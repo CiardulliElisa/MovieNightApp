@@ -7,9 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [WatchedMovie::class, MovieToWatch::class], version = 6, exportSchema = false)
 abstract class SavedMoviesDatabase : RoomDatabase() {
-
-    abstract fun watchedMovieDao(): WatchedMovieDao
-    abstract fun movieToWatchDao(): MovieToWatchDao
+    abstract fun movieToWatchDao(): SavedMoviesDAO
 
     companion object {
         @Volatile

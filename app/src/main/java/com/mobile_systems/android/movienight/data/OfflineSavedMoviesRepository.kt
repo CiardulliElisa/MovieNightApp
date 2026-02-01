@@ -2,26 +2,26 @@ package com.mobile_systems.android.movienight.data
 
 import kotlinx.coroutines.flow.Flow
 
-class OfflineSavedMoviesRepository(private val watchedMovieDao: WatchedMovieDao, private val movieToWatchDao: MovieToWatchDao) : SavedMoviesRepository {
+class OfflineSavedMoviesRepository(private val savedMoviesDAO: SavedMoviesDAO) : SavedMoviesRepository {
 
-    override suspend fun insertWatchedMovie(watchedMovie: WatchedMovie) = watchedMovieDao.insert(watchedMovie)
+    override suspend fun insertWatchedMovie(watchedMovie: WatchedMovie) = savedMoviesDAO.insert(watchedMovie)
 
-    override suspend fun updateWatchedMovie(watchedMovie: WatchedMovie) = watchedMovieDao.update(watchedMovie)
+    override suspend fun updateWatchedMovie(watchedMovie: WatchedMovie) = savedMoviesDAO.update(watchedMovie)
 
-    override suspend fun deleteWatchedMovie(watchedMovie: WatchedMovie) = watchedMovieDao.delete(watchedMovie)
+    override suspend fun deleteWatchedMovie(watchedMovie: WatchedMovie) = savedMoviesDAO.delete(watchedMovie)
 
-    override fun getAllWatchedMovies(): Flow<List<WatchedMovie>> = watchedMovieDao.getAllFavouriteMovies()
+    override fun getAllWatchedMovies(): Flow<List<WatchedMovie>> = savedMoviesDAO.getAllFavouriteMovies()
 
-    override fun getWatchedMovieById(id: String): Flow<WatchedMovie?> = watchedMovieDao.getFavouriteMovieById(id)
+    override fun getWatchedMovieById(id: String): Flow<WatchedMovie?> = savedMoviesDAO.getFavouriteMovieById(id)
 
-    override suspend fun insertMovieToWatch(movieToWatch: MovieToWatch) = movieToWatchDao.insert(movieToWatch)
+    override suspend fun insertMovieToWatch(movieToWatch: MovieToWatch) = savedMoviesDAO.insert(movieToWatch)
 
-    override suspend fun updateMovieToWatch(movieToWatch: MovieToWatch) = movieToWatchDao.update(movieToWatch)
+    override suspend fun updateMovieToWatch(movieToWatch: MovieToWatch) = savedMoviesDAO.update(movieToWatch)
 
-    override suspend fun deleteMovieToWatch(movieToWatch: MovieToWatch) = movieToWatchDao.delete(movieToWatch)
+    override suspend fun deleteMovieToWatch(movieToWatch: MovieToWatch) = savedMoviesDAO.delete(movieToWatch)
 
-    override fun getAllMoviesToWatch(): Flow<List<MovieToWatch>> = movieToWatchDao.getAllMoviesToWatch()
+    override fun getAllMoviesToWatch(): Flow<List<MovieToWatch>> = savedMoviesDAO.getAllMoviesToWatch()
 
-    override fun getMovieToWatchById(id: String): Flow<MovieToWatch?> = movieToWatchDao.getMovieToWatchById(id)
+    override fun getMovieToWatchById(id: String): Flow<MovieToWatch?> = savedMoviesDAO.getMovieToWatchById(id)
 
 }

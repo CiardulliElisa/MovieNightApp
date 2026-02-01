@@ -40,8 +40,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
     //The repository that is used to fetch data from the local offline database
     override val savedMoviesRepository : SavedMoviesRepository by lazy {
         OfflineSavedMoviesRepository(
-            SavedMoviesDatabase.getDatabase(context).watchedMovieDao(),
-            movieToWatchDao = SavedMoviesDatabase.getDatabase(context).movieToWatchDao()
+            savedMoviesDAO = SavedMoviesDatabase.getDatabase(context).movieToWatchDao()
         )
     }
 }
