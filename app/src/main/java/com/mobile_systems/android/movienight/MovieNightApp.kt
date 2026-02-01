@@ -3,6 +3,7 @@ package com.mobile_systems.android.movienight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,8 +24,9 @@ import com.mobile_systems.android.movienight.ui.movienightevent.RankingListScree
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.VoteScreen
 import com.mobile_systems.android.movienight.ui.theme.MovieNightTheme
+import com.mobile_systems.android.movienight.ui.utils.MovieNightContentType
 
-enum class MovieNightApp() {
+enum class MovieNightApp {
     Home(),
     AddFriends(),
     Vote(),
@@ -33,8 +35,10 @@ enum class MovieNightApp() {
 
 @Composable
 fun MovieNightApp(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    windowSize: WindowWidthSizeClass
 ) {
+    val contentType: MovieNightContentType
     val movieViewModel: MovieViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val themeViewModel: ThemeViewModel = viewModel()
     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -42,15 +46,32 @@ fun MovieNightApp(
     val movieNightEventViewModel: MovieNightEventViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val themeUiState by themeViewModel.uiState.collectAsState()
 
+    when (windowSize) {
+        WindowWidthSizeClass.Compact -> {
+            contentType = MovieNightContentType.LIST_ONLY
+        }
+        WindowWidthSizeClass.Medium -> {
+            contentType = MovieNightContentType.LIST_ONLY
+        }
+        WindowWidthSizeClass.Expanded -> {
+            contentType = MovieNightContentType.LIST_AND_DETAIL
+        }
+        else -> {
+            contentType = MovieNightContentType.LIST_ONLY
+        }
+    }
+
     MovieNightTheme(darkTheme = themeUiState.isDarkTheme) {
         Surface(modifier = Modifier.fillMaxSize())
-        { NavHost(
+        {
+            NavHost(
                 navController = navController,
                 startDestination = MovieNightApp.Home.name,
                 modifier = Modifier.safeDrawingPadding()
             ) {
                 composable(route = MovieNightApp.Home.name) {
                     HomeScreen(
+                        contentType = contentType,
                         onMovieNightClicked = {
                             navController.navigate(MovieNightApp.AddFriends.name)
                             movieNightEventViewModel.resetMovieNight()

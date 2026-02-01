@@ -83,4 +83,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.retrofit)
+    implementation(libs.androidx.compose.material3.window.size.class1)
 }

@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
@@ -29,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,8 +44,6 @@ fun MovieDetailsCard(
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
 ) {
-    val movie = movieDetailsUiState.selectedMovie
-
     Surface(
         modifier = Modifier
             .fillMaxWidth(0.95f)
@@ -53,95 +52,123 @@ fun MovieDetailsCard(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 6.dp
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        MovieDetailsContent(
+            movieDetailsUiState = movieDetailsUiState,
+            onClose = onClose,
+            onToWatchClicked = onToWatchClicked,
+            onWatchedClicked = onWatchedClicked,
+            isExpanded = false
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun MovieDetailsContent(
+    movieDetailsUiState: MovieDetailsUiState,
+    onClose: () -> Unit,
+    onToWatchClicked: () -> Unit,
+    onWatchedClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    isExpanded: Boolean = false // If true, we use more vertical space
+) {
+    val movie = movieDetailsUiState.selectedMovie
+
+    Column(
+        modifier = modifier
+            .padding(if (isExpanded) 32.dp else 24.dp)
+            .then(if (isExpanded) Modifier.verticalScroll(rememberScrollState()) else Modifier),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // CLOSE BUTTON ROW
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = "Close")
+            }
+        }
+
+        // IMAGE
+        Surface(
+            modifier = Modifier
+                .width(if (isExpanded) 340.dp else 260.dp)
+                .height(if (isExpanded) 200.dp else 150.dp)
+                .clip(MaterialTheme.shapes.extraLarge),
+            tonalElevation = 4.dp,
+            shape = MaterialTheme.shapes.extraLarge
         ) {
-            // THE IMAGE CARD
-            Surface(
-                modifier = Modifier
-                    .width(260.dp)
-                    .height(150.dp)
-                    .clip(MaterialTheme.shapes.extraLarge),
-                tonalElevation = 4.dp,
-                shape = MaterialTheme.shapes.extraLarge
-            ) {
-                AsyncImage(
-                    model = movie.content?.thumbnail ?: movie.content?.thumbnail, // Fixed fallback
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // TITLE
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+            AsyncImage(
+                model = movie.content?.thumbnail,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
+        }
 
-            // GENRES
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
-                movie.content?.genres?.forEach { genre ->
-                    Surface(
-                        shape = MaterialTheme.shapes.small,
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        tonalElevation = 2.dp
-                    ) {
-                        Text(
-                            text = genre,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // TITLE
+        Text(
+            text = movie.title,
+            style = if (isExpanded) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+
+        // GENRES
+        FlowRow(
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
+        ) {
+            movie.content?.genres?.forEach { genre ->
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    tonalElevation = 2.dp,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                ) {
+                    Text(
+                        text = genre,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(if (isExpanded) 48.dp else 24.dp))
 
-            // ACTION ROW
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                // Save Action
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconButton(onClick = onToWatchClicked) {
-                        Icon(
-                            imageVector = if (movieDetailsUiState.isToWatch)
-                                Icons.Default.Bookmark
-                            else Icons.Default.BookmarkBorder,
-                            contentDescription = "Save",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                    Text("Save", style = MaterialTheme.typography.labelMedium)
-                }
+        // ACTION ROW
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            ActionItem(
+                label = "Save",
+                icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                onClick = onToWatchClicked
+            )
+            ActionItem(
+                label = "Watched",
+                icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                onClick = onWatchedClicked
+            )
+        }
+    }
+}
 
-                // Watched Action
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconButton(onClick = onWatchedClicked) {
-                        Icon(
-                            imageVector = if (movieDetailsUiState.isWatched)
-                                Icons.Default.Visibility
-                            else Icons.Default.VisibilityOff,
-                            contentDescription = "Watched",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                    Text("Watched", style = MaterialTheme.typography.labelMedium)
-                }
-            }
-        } // End of Column
-    } // End of Surface
+@Composable
+private fun ActionItem(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        IconButton(onClick = onClick) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+        Text(label, style = MaterialTheme.typography.labelMedium)
+    }
 }
