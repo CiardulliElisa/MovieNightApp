@@ -63,34 +63,32 @@ class MovieNightEventViewModel(
 
         // Fetch movies for the movie night in the background
         viewModelScope.launch {
+
+            _uiState.update { currentState ->
+                currentState.copy(errorMessage = null) }
+
             try {
 
                 val fetchedMovies = moviesRepository.getMovies(10)
 
-                //The movie night only starts if the movies were successfully fetched
-                if(!fetchedMovies.isEmpty()) {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            errorMessage = null,
-                            isMovieNightStarted = true,
-                            movieList = fetchedMovies,
-                            friendsToVote = currentState.friends,
-                            currentMovie = fetchedMovies.first(),
-                            currentMovieIndex = 0,
-                            currentFriend = currentState.friends.randomOrNull(),
-                            showNewFriendDialog = true,
-                        )
-                    }
-                } else {
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            errorMessage = "Check your internet connection and try again",
-                        )
-                    }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isMovieNightStarted = true,
+                        movieList = fetchedMovies,
+                        friendsToVote = currentState.friends,
+                        currentMovie = fetchedMovies.first(),
+                        currentMovieIndex = 0,
+                        currentFriend = currentState.friends.randomOrNull(),
+                        showNewFriendDialog = true,
+                    )
                 }
 
             } catch (e: Exception) {
-                Log.d("MovieNightEventViewModel", "Error fetching movies")
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        errorMessage = "Check your internet connection and try again",
+                    )
+                }
             }
         }
     }

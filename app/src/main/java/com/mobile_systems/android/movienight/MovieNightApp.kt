@@ -102,7 +102,7 @@ fun MovieNightApp(
                         modifier = Modifier,
                     )
                 }
-                //From the vote page navigate if the movie night is finished navigate to the final rankings page
+                //From the vote page if the movie night is finished navigate to the final rankings page
                 // Or navigate back to the add friends page or the home page through the navigation buttons
                 // Once the movie night is finished all information is lost about the vote pages and add friends page
                 composable(route = MovieNightApp.Vote.name) {
