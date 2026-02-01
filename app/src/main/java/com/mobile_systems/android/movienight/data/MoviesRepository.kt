@@ -15,11 +15,10 @@ class NetworkMoviesRepository(
     private val kinoCheckRetrofitService: MoviesApiService
 ) : MoviesRepository {
 
-    override suspend fun getMoviesByGenre(genres: String, limit : Int): List<Movie> {
+    override suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie> {
         return try {
             val randomPage = (5..100).random()
             val responseMap = kinoCheckRetrofitService.getMoviesByGenre(genres, randomPage, limit)
-
             responseMap.values.take(limit).toList()
         } catch (e: Exception) {
             emptyList()
@@ -27,14 +26,24 @@ class NetworkMoviesRepository(
     }
 
     override suspend fun getMovies(count: Int): List<Movie> {
-        return try {
-            val randomPage = (5..100).random()
-            val responseMap = kinoCheckRetrofitService.getMovies(randomPage)
-            responseMap.values.take(count).toList()
 
-        } catch (e: Exception) {
-            emptyList()
+        val movieList = mutableListOf<Movie>()
+        var attempts = 0
+        val maxAttempts = count * 2
+
+        while (movieList.size < count && attempts < maxAttempts) {
+            attempts++
+            try {
+                val randomPage = (1..500).random()
+                val responseMap = kinoCheckRetrofitService.getMovies(randomPage)
+                val movie = responseMap.values.firstOrNull()
+                if (movie != null && movieList.none { it.data.movieId == movie.data.movieId }) {
+                    movieList.add(movie)
+                }
+            } catch (e: Exception) {
+            }
         }
+        return movieList
     }
 
     override suspend fun getMovieDetails(movieId: String): MovieDetails {

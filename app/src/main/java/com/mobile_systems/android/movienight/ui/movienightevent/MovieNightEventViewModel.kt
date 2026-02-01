@@ -61,36 +61,31 @@ class MovieNightEventViewModel(
      * - showing the start of new round dialog
      */
     fun startMovieNightEvent() {
-
-        // Fetch movies for the movie night in the background
         viewModelScope.launch {
+            _uiState.update { it.copy(errorMessage = null) }
 
-            _uiState.update { currentState ->
-                currentState.copy(errorMessage = null) }
+            try {
+                val fetchedMovies = moviesRepository.getMovies(10)
 
-            val fetchedMovies = try {
-                moviesRepository.getMovies(10)
+                if (fetchedMovies.isEmpty()) {
+                    _uiState.update { it.copy(errorMessage = "No movies. Try again!") }
+                } else {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            isMovieNightStarted = true,
+                            movieList = fetchedMovies,
+                            friendsToVote = currentState.friends,
+                            currentMovie = fetchedMovies.first(),
+                            currentMovieIndex = 0,
+                            currentFriend = currentState.friends.randomOrNull(),
+                            showNewFriendDialog = true,
+                        )
+                    }
+                }
             } catch (e: Exception) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        errorMessage = "Check your internet connection and try again",
-                    )
-                }
-                null
-            }
-            if(fetchedMovies != null && fetchedMovies.isNotEmpty()) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        errorMessage = null,
-                        isMovieNightStarted = true,
-                        movieList = fetchedMovies,
-                        friendsToVote = currentState.friends,
-                        currentMovie = fetchedMovies.first(),
-                        currentMovieIndex = 0,
-                        currentFriend = currentState.friends.randomOrNull(),
-                        showNewFriendDialog = true,
-                    )
-                }
+                // Now this will correctly trigger on airplane mode or API 404s!
+                Log.e("VM_ERROR", "Fetch failed", e)
+                _uiState.update { it.copy(errorMessage = "Check your internet connection and try again") }
             }
         }
     }
