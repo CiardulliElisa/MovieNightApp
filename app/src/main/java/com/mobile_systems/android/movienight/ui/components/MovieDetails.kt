@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mobile_systems.android.movienight.ui.MovieDetailsUiState
 
+//A dialog box with some movie information (picture, title, genres, if it has been watched or is in the watchlist)
 @Composable
 fun MovieDetailsCard(
     movieDetailsUiState: MovieDetailsUiState,
@@ -45,6 +46,7 @@ fun MovieDetailsCard(
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
 ) {
+    //The base of the dialog box
     Surface(
         modifier = Modifier
             .fillMaxWidth(0.95f)
@@ -53,6 +55,7 @@ fun MovieDetailsCard(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 6.dp
     ) {
+        //The actual information about the movie
         MovieDetailsContent(
             movieDetailsUiState = movieDetailsUiState,
             onClose = onClose,
@@ -71,7 +74,7 @@ fun MovieDetailsContent(
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    isExpanded: Boolean = false // If true, we use more vertical space
+    isExpanded: Boolean = false
 ) {
     val movie = movieDetailsUiState.selectedMovie
 
@@ -145,12 +148,12 @@ fun MovieDetailsContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            ActionItem(
+            SaveButton(
                 label = "Save",
                 icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                 onClick = onToWatchClicked
             )
-            ActionItem(
+            SaveButton(
                 label = "Watched",
                 icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                 onClick = onWatchedClicked
@@ -240,12 +243,12 @@ fun MovieDetailsContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            DetailActionItem(
+            SaveButton(
                 label = "Save",
                 icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                 onClick = onToWatchClicked
             )
-            DetailActionItem(
+            SaveButton(
                 label = "Watched",
                 icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                 onClick = onWatchedClicked
@@ -255,22 +258,7 @@ fun MovieDetailsContent(
 }
 
 @Composable
-private fun DetailActionItem(label: String, icon: ImageVector, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        IconButton(onClick = onClick) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-        Text(label, style = MaterialTheme.typography.labelMedium)
-    }
-}
-
-@Composable
-private fun ActionItem(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+private fun SaveButton(label: String, icon: ImageVector, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         IconButton(onClick = onClick) {
             Icon(
