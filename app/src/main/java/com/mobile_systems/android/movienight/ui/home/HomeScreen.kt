@@ -96,7 +96,8 @@ fun HomeScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
                 ) {
                     ThemeToggleButton(
                         onThemeToggle = { themeViewModel.toggleDarkTheme() },
