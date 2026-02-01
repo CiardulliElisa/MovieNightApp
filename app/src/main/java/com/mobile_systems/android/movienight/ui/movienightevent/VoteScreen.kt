@@ -56,7 +56,7 @@ fun VoteScreen(
     val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
 
     val coroutineScope = rememberCoroutineScope()
-    val isDetailVisible = movieDetailsUiState.id != ""
+    val isDetailVisible = movieDetailsUiState.isSelected
 
     // --- RESET SIDEBAR ON ENTRY ONLY ---
     LaunchedEffect(Unit) {

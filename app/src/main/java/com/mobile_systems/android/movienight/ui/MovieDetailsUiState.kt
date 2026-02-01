@@ -8,7 +8,7 @@ import com.mobile_systems.android.movienight.data.MovieToWatch
 import kotlin.String
 
 data class MovieDetailsUiState(
-    val id: String = "",
+    val isSelected: Boolean = false,
     val isToWatch: Boolean = false,
     val isWatched: Boolean = false,
     val selectedMovie: MovieDetails = MovieDetails(),

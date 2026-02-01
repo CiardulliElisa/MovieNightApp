@@ -55,7 +55,7 @@ fun RankingListScreen(
     val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
 
     val coroutineScope = rememberCoroutineScope()
-    val isDetailVisible = movieDetailsUiState.id != ""
+    val isDetailVisible = movieDetailsUiState.isSelected
 
     LaunchedEffect(Unit) {
         movieDetailsViewModel.deselectMovie()

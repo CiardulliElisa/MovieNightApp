@@ -21,7 +21,7 @@ class MovieDetailsViewModel(
 
     fun selectMovie(movieId: String) {
         // 1. Trigger the dialog to show immediately
-        movieDetailsUiState = movieDetailsUiState.copy(id = movieId)
+        movieDetailsUiState = movieDetailsUiState.copy(isSelected = true)
 
         viewModelScope.launch {
             try {
@@ -47,13 +47,6 @@ class MovieDetailsViewModel(
      * Toggles the "To Watch" status in the repository
      */
     fun toggleToWatch() {
-        val state = movieDetailsUiState
-        val movieFromDetails = state.selectedMovie.toMovieToWatch()
-
-// Debug both sources of truth
-        Log.d("ID_CHECK", "State Top-Level ID: ${state.id}")
-        Log.d("ID_CHECK", "Details Object ID: ${state.selectedMovie.movieId}")
-        Log.d("ID_CHECK", "Mapped Entity ID: ${movieFromDetails.id}")
         viewModelScope.launch {
             if (movieDetailsUiState.isToWatch) {
                 savedMoviesRepository.deleteMovieToWatch(movieDetailsUiState.selectedMovie.toMovieToWatch())
@@ -61,7 +54,7 @@ class MovieDetailsViewModel(
                 savedMoviesRepository.insertMovieToWatch(movieDetailsUiState.selectedMovie.toMovieToWatch())
             }
             // Refresh local state status after DB update
-            updateStatus(movieDetailsUiState.id)
+            updateStatus(movieDetailsUiState.selectedMovie.movieId)
         }
     }
 
@@ -76,7 +69,7 @@ class MovieDetailsViewModel(
                 savedMoviesRepository.insertWatchedMovie(movieDetailsUiState.selectedMovie.toWatchedMovie())
             }
             // Refresh local state status after DB update
-            updateStatus(movieDetailsUiState.id)
+            updateStatus(movieDetailsUiState.selectedMovie.movieId)
         }
     }
 

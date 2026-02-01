@@ -83,7 +83,7 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val categories = listOf("Drama", "Animation", "Science Fiction", "Mystery")
-    val isDetailVisible = movieDetailsUiState.id != ""
+    val isDetailVisible = movieDetailsUiState.isSelected
 
     LaunchedEffect(Unit) {
         movieDetailsViewModel.deselectMovie()
