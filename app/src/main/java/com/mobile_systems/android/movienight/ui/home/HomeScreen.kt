@@ -76,10 +76,13 @@ fun HomeScreen(
     movieViewModel: MovieViewModel,
     contentType: MovieNightContentType
 ) {
+    //Ui states
     val themeUiState by themeViewModel.uiState.collectAsState()
+    val homeUiState by homeViewModel.homeUiState.collectAsState()
     val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
     val movieUiState = movieViewModel.movieUiState
-    val homeUiState by homeViewModel.homeUiState.collectAsState()
+
+    //Coroutine scope
     val coroutineScope = rememberCoroutineScope()
 
     val categories = movieViewModel.getCategories()
@@ -93,6 +96,8 @@ fun HomeScreen(
 
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
             Column(modifier = Modifier.fillMaxSize()) {
+
+                //Top row, with theme toggle
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -104,10 +109,11 @@ fun HomeScreen(
                     )
                 }
 
+                // Lists of movies
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // 3. Add the Watchlist
+                    //Watchlist movies list
                     item {
                         MovieCarousel(
                             title = "Watchlist",
@@ -119,22 +125,17 @@ fun HomeScreen(
                         )
                     }
 
+                    //Lists of movies per genre
                     items(categories.size) { index ->
-                        // 1. Get the category name (e.g., "Animation")
                         val categoryName = categories[index]
-
-                        // 2. Extract the actual list of movies from the ViewModel's state
                         val (movieList, isCategoryLoading) = when (val state = movieUiState) {
                             is MovieUiState.Success -> {
-                                // Use the name to find the list of movies in the map
                                 val list = state.categories[categoryName] ?: emptyList()
                                 list to false
                             }
                             is MovieUiState.Loading -> emptyList<Movie>() to true
                             is MovieUiState.Error -> emptyList<Movie>() to false
                         }
-
-                        // 3. Pass the data to the Carousel
                         MovieCarousel(
                             title = categoryName,
                             movies = movieList,
@@ -147,15 +148,16 @@ fun HomeScreen(
                 }
             }
 
+            //Button to start a new movie night event
             MovieNightButton(
                 onClick = onMovieNightClicked,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             )
         }
 
-        // --- RIGHT SIDE / DIALOG: ADAPTIVE DETAIL VIEW ---
+        //Movie details view
         if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
-            // SIDE PANEL DESIGN (For Expanded Screens)
+            // Side panel design for non compact devices
             AnimatedVisibility(
                 visible = isDetailVisible,
                 enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
@@ -176,7 +178,7 @@ fun HomeScreen(
                 }
             }
         } else if (isDetailVisible) {
-            // DIALOG DESIGN (For Compact Screens)
+            // Dialog design for compact devices
             Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
                 MovieDetailsCard(
                     movieDetailsUiState = movieDetailsUiState,
@@ -189,10 +191,6 @@ fun HomeScreen(
     }
 }
 
-/**
- * Shared Content Logic used by both the Side Panel and the Dialog.
- * Internal to this screen or can be moved to a component file.
- */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MovieDetailsContent(
