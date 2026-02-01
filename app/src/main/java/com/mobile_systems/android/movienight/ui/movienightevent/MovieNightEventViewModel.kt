@@ -46,10 +46,11 @@ class MovieNightEventViewModel(
     private val _uiState = MutableStateFlow(MovieNightEventUiState())
     val uiState = _uiState.asStateFlow()
 
+    //State for the text input for adding participants
     var friendNameInput by mutableStateOf("")
         private set
 
-    /**This completely reset a movie night event*/
+    /**Completely resets a movie night event*/
     fun resetMovieNight() {
         _uiState.value = MovieNightEventUiState()
     }
@@ -90,37 +91,49 @@ class MovieNightEventViewModel(
         }
     }
 
-    /**Resets the error message after it has been viewed*/
+    /** Clears the error message after it has been viewed*/
     fun consumeError() {
         _uiState.update { currentState -> currentState.copy(errorMessage = null) }
     }
 
+    //Keeps track of the new name being input in the text field, only allows names up to 10 letters
     fun updateFriendName(newName: String) {
-        friendNameInput = newName
+        if (newName.length <= 10) {
+            friendNameInput = newName
+        }
     }
 
+    //Opens the dialog window to enter a new participant's name
     fun openEnterNameDialog() {
-        _uiState.update { it.copy(showEnterNameDialog = true) }
+        _uiState.update { currentState -> currentState.copy(showEnterNameDialog = true) }
     }
 
+    //Closes the dialog window to enter a new participant's name and resets the text field
     fun closeDialog() {
-        _uiState.update { it.copy(showEnterNameDialog = false) }
+        _uiState.update { currentState -> currentState.copy(showEnterNameDialog = false) }
         friendNameInput = ""
     }
 
+
+    //Adds user to the movie night event
     fun addFriend() {
+        //New participant and assigns a random color and icon to them.
         val newFriend = Friend(
             icon = ICON_POOL.random(),
             color = COLOR_POOL.random(),
             name = friendNameInput
         )
+        //Add the new user to the list of participants and close the dialog window
         _uiState.update { it.copy(
             friends = it.friends + newFriend,
             showEnterNameDialog = false
         ) }
+        //Reset the text field
         friendNameInput = ""
     }
 
+    //If the icon had already been clicked, it removes the user from the list of participants,
+    // otherwise it sets them as the one to be removed (if clicked again)
     fun onFriendClicked(friend: Friend) {
         _uiState.update { currentState ->
             if (currentState.friendToRemove == friend) {
@@ -133,29 +146,36 @@ class MovieNightEventViewModel(
             }
         }
     }
+
+    //The user that was to be removed is no longer to be removed
     fun clearSelection() {
         _uiState.update { it.copy(friendToRemove = null) }
     }
 
+    //Closes the dialog window to add a new participant
     fun closeNewFriendDialog() {
         _uiState.update { currentState -> currentState.copy(showNewFriendDialog = false) }
     }
 
+    //Goes to the next movie in the list of movies to vote on and checks if the round has ended
     fun updateCurrentMovie() {
         val currentState = _uiState.value
         val nextIndex = currentState.currentMovieIndex + 1
 
+        //If there are no more movies to vote on, end the round
         if (nextIndex >= currentState.movieList.size) {
             endMovieNightRound()
             return
         }
 
+        //Go to next movie
         _uiState.update { currentState -> currentState.copy(
             currentMovieIndex = nextIndex,
             currentMovie = currentState.movieList[nextIndex]
         ) }
     }
 
+    //Sort the movies based on their positive votes, negative votes and the movie id
     fun getSortedRankingList(): List<Movie> {
         return _uiState.value.movieList.sortedWith(
             compareByDescending<Movie> { it.likes }
@@ -187,18 +207,18 @@ class MovieNightEventViewModel(
         }
     }
 
+    //Update the number of likes for the current movie and goes to the next movie
     fun updateLikes() {
         val movie = _uiState.value.currentMovie ?: return
 
-        // 1. Create a new movie object with incremented likes
+        // Increment likes for the current movie
         val updatedMovie = movie.copy(likes = movie.likes + 1)
 
-        // 2. Update the list to include this updated movie (so the final summary is correct)
+        //Replaces the old movie in the list with the updated movie
         val updatedList = _uiState.value.movieList.map { movieInList ->
             if (movieInList.data.movieId == movie.data.movieId) updatedMovie else movieInList
         }
 
-        // 3. Emit a whole new UI State
         _uiState.update { currentState ->
             currentState.copy(
                 currentMovie = updatedMovie,
@@ -209,25 +229,21 @@ class MovieNightEventViewModel(
         updateCurrentMovie()
     }
 
+    //Updates the number of dislikes for the current movie and goes to the next movie
     fun updateDislikes() {
         val movie = _uiState.value.currentMovie ?: return
 
-        // 1. Create a new movie object with incremented likes
         val updatedMovie = movie.copy(dislikes = movie.dislikes + 1)
 
-        // 2. Update the list to include this updated movie (so the final summary is correct)
         val updatedList = _uiState.value.movieList.map { movieInList ->
             if (movieInList.data.movieId == movie.data.movieId) updatedMovie else movieInList
         }
-
-        // 3. Emit a whole new UI State
         _uiState.update { currentState ->
             currentState.copy(
                 currentMovie = updatedMovie,
                 movieList = updatedList
             )
         }
-
         updateCurrentMovie()
     }
 }
