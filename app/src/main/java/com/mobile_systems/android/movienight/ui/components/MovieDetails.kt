@@ -118,6 +118,8 @@ fun MovieDetailsContent(
             )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Movie Title
         Text(
             text = movie.title,
@@ -149,6 +151,8 @@ fun MovieDetailsContent(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Save Buttons
         Row(

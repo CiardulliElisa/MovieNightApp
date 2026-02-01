@@ -19,7 +19,7 @@ import com.mobile_systems.android.movienight.ui.movienightevent.AddFriendsScreen
 import com.mobile_systems.android.movienight.ui.home.HomeScreen
 import com.mobile_systems.android.movienight.ui.home.HomeViewModel
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
-import com.mobile_systems.android.movienight.ui.MovieViewModel
+import com.mobile_systems.android.movienight.ui.home.MovieViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.MovieNightEventViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.RankingListScreen
 import com.mobile_systems.android.movienight.ui.ThemeViewModel

@@ -2,12 +2,6 @@ package com.mobile_systems.android.movienight.ui.home
 
 import Movie
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,16 +35,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
-import com.mobile_systems.android.movienight.ui.MovieUiState
-import com.mobile_systems.android.movienight.ui.MovieViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsContent
@@ -66,7 +55,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     movieDetailsViewModel: MovieDetailsViewModel,
     movieViewModel: MovieViewModel,
-    contentType: MovieNightContentType
+    contentType: MovieNightContentType,
 ) {
     //Ui states
     val themeUiState by themeViewModel.uiState.collectAsState()
@@ -88,59 +77,67 @@ fun HomeScreen(
     Row(modifier = modifier.fillMaxSize()) {
 
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-            Column(modifier = Modifier.fillMaxSize()) {
-
-                //Top row, with theme toggle
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    //Button to change the theme of the app
-                    ThemeToggleButton(
-                        onThemeToggle = { themeViewModel.toggleDarkTheme() },
-                        isDarkTheme = themeUiState.isDarkTheme
+            when (movieUiState) {
+                //On load show the whole page loading
+                is MovieUiState.Loading -> {
+                    LoadingScreen(modifier = Modifier.fillMaxSize())
+                }
+                //On error show an alert and ask to reload the page
+                is MovieUiState.Error -> {
+                    ErrorScreen(
+                        retryAction = { movieViewModel.fetchAllCategories() },
                     )
                 }
+                is MovieUiState.Success -> {
+                    // Only show the list if the state is Success
+                    Column(modifier = Modifier.fillMaxSize()) {
 
-                // Lists of movies
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 85.dp)
-                ) {
-                    //Watchlist movies list, only appear if there are movies in the watchlist
-                    if(homeUiState.moviesToWatch.isNotEmpty()) {
-                        item {
-                            MovieCarousel(
-                                title = "Watchlist",
-                                movies = homeUiState.moviesToWatch,
-                                isLoading = false,
-                                onMovieClick = { movie ->
-                                    movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
-                                }
+                        //Top row, with theme toggle
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            //Button to change the theme of the app
+                            ThemeToggleButton(
+                                onThemeToggle = { themeViewModel.toggleDarkTheme() },
+                                isDarkTheme = themeUiState.isDarkTheme
                             )
                         }
-                    }
 
-                    //Lists of movies per genre
-                    items(categories.size) { index ->
-                        val categoryName = categories[index]
-                        val (movieList, isCategoryLoading) = when (val state = movieUiState) {
-                            is MovieUiState.Success -> {
-                                val list = state.categories[categoryName] ?: emptyList()
-                                list to false
+                        // Lists of movies
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 100.dp) // Ensures button doesn't cover last carousel
+                        ) {
+                            //Watchlist movies list, only appear if there are movies in the watchlist
+                            if(homeUiState.moviesToWatch.isNotEmpty()) {
+                                item {
+                                    MovieCarousel(
+                                        title = "Watchlist",
+                                        movies = homeUiState.moviesToWatch,
+                                        onMovieClick = { movie ->
+                                            movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
+                                        }
+                                    )
+                                }
                             }
-                            is MovieUiState.Loading -> emptyList<Movie>() to true
-                            is MovieUiState.Error -> emptyList<Movie>() to false
+
+                            //Lists of movies per genre
+                            items(categories.size) { index ->
+                                val categoryName = categories[index]
+                                // Extract the list from our success state map
+                                val movieList = movieUiState.categories[categoryName] ?: emptyList()
+
+                                MovieCarousel(
+                                    title = categoryName,
+                                    movies = movieList,
+                                    onMovieClick = { movie ->
+                                        movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
+                                    }
+                                )
+                            }
                         }
-                        MovieCarousel(
-                            title = categoryName,
-                            movies = movieList,
-                            isLoading = isCategoryLoading,
-                            onMovieClick = { movie ->
-                                movie.data.movieId?.let { movieDetailsViewModel.selectMovie(it) }
-                            }
-                        )
                     }
                 }
             }
@@ -186,12 +183,37 @@ fun HomeScreen(
     }
 }
 
+//When the movies are not loaded correctly,
+// show an error message and ask the user to try again, which tries fetching the movies again
+@Composable
+fun ErrorScreen(
+    retryAction: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        onDismissRequest = {  },
+        title = {
+            Text(text = "Connection Error")
+        },
+        text = {
+            Text(text = "We couldn't load the movies. Please check your internet connection and try again.")
+        },
+        confirmButton = {
+            androidx.compose.material3.TextButton(
+                onClick = { retryAction() }
+            ) {
+                Text("Reload")
+            }
+        },
+        modifier = modifier
+    )
+}
+
 // Carousel of movies, each movie is clickable
 @Composable
 fun MovieCarousel(
     title: String,
     movies: List<Movie>,
-    isLoading: Boolean,
     onMovieClick: (Movie) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -208,12 +230,8 @@ fun MovieCarousel(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (isLoading) {
-                items(10) { LoadingItemPlaceholder() }
-            } else {
-                items(movies) { movie ->
-                    MovieCard(movie = movie, onClick = { onMovieClick(movie) })
-                }
+            items(movies) { movie ->
+                MovieCard(movie = movie, onClick = { onMovieClick(movie) })
             }
         }
     }
@@ -246,22 +264,18 @@ private fun MovieCard(
     }
 }
 
-//This is an empty movie card, used as placeholder while the movie loads. It only contains a spinner.
+//Shows a spinner when the page is loading
 @Composable
-fun LoadingItemPlaceholder() {
-    val cardShape = MaterialTheme.shapes.extraLarge
-    Surface(
-        modifier = Modifier.height(150.dp).width(260.dp).fillMaxWidth().clip(cardShape),
-        shape = cardShape,
-        tonalElevation = 4.dp
+fun LoadingScreen(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.fillMaxSize(), // Fills the whole area provided (the middle of the page)
+        contentAlignment = Alignment.Center
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(
-                modifier = Modifier.width(32.dp),
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 4.dp
-            )
-        }
+        CircularProgressIndicator(
+            modifier = Modifier.width(48.dp), // "Medium" size (standard is usually 32dp or 48dp)
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = 4.dp
+        )
     }
 }
 
