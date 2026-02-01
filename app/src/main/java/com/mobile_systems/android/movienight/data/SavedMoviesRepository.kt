@@ -2,6 +2,7 @@ package com.mobile_systems.android.movienight.data
 
 import kotlinx.coroutines.flow.Flow
 
+//Defines all possible operations that can be performed in the local database: savedMovies
 interface SavedMoviesRepository {
     suspend fun insertWatchedMovie(watchedMovie: WatchedMovie)
     suspend fun updateWatchedMovie(watchedMovie: WatchedMovie)
