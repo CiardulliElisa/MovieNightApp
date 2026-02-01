@@ -46,6 +46,7 @@ fun MovieDetailsCard(
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
 ) {
+    //The dialog window container
     Dialog(
         onDismissRequest = onClose
     ) {
@@ -79,22 +80,28 @@ fun MovieDetailsContent(
     modifier: Modifier = Modifier,
     isExpanded: Boolean = false,
 ) {
+    //The movie for which to display the information
     val movie = movieDetailsUiState.selectedMovie
 
+    //Handle different padding for the the different window sizes
+    var columnModifier = modifier.padding(if (isExpanded) 32.dp else 24.dp)
+    if (isExpanded) {
+        columnModifier = columnModifier.verticalScroll(rememberScrollState())
+    }
+
     Column(
-        modifier = modifier
-            .padding(if (isExpanded) 32.dp else 24.dp)
-            .then(if (isExpanded) Modifier.verticalScroll(rememberScrollState()) else Modifier),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = columnModifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        // CLOSE BUTTON ROW
+        // Button to close
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             IconButton(onClick = onClose) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
         }
 
-        // IMAGE
+        //Movie Picture
         Surface(
             modifier = Modifier
                 .width(if (isExpanded) 340.dp else 260.dp)
@@ -111,22 +118,21 @@ fun MovieDetailsContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // TITLE
+        // Movie Title
         Text(
             text = movie.title,
-            style = if (isExpanded) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall,
+            style = if (isExpanded) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
-        // GENRES
+        // Movie Genres List
         FlowRow(
             horizontalArrangement = Arrangement.Center,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
         ) {
+            //A small label to contain each genre
             movie.content?.genres?.forEach { genre ->
                 Surface(
                     shape = MaterialTheme.shapes.small,
@@ -136,7 +142,7 @@ fun MovieDetailsContent(
                 ) {
                     Text(
                         text = genre,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = if (isExpanded) MaterialTheme.typography.labelLarge else MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -144,20 +150,20 @@ fun MovieDetailsContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(if (isExpanded) 48.dp else 24.dp))
-
-        // ACTION ROW
+        // Save Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
+            //Button to save movie to watchlist
             SaveButton(
-                label = "Save",
+                label = if (movieDetailsUiState.isToWatch) "Saved" else "Save",
                 icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                 onClick = onToWatchClicked
             )
+            //Button to mark movie as watched
             SaveButton(
-                label = "Watched",
+                label = if (movieDetailsUiState.isWatched) "Watched" else "Not Watched",
                 icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                 onClick = onWatchedClicked
             )
@@ -165,6 +171,7 @@ fun MovieDetailsContent(
     }
 }
 
+//Button to save a movie to the watchlist or mark it as watched
 @Composable
 private fun SaveButton(label: String, icon: ImageVector, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
