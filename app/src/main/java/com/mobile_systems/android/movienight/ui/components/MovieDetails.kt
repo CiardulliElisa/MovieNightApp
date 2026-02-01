@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mobile_systems.android.movienight.ui.MovieDetailsUiState
@@ -61,7 +60,6 @@ fun MovieDetailsCard(
             onClose = onClose,
             onToWatchClicked = onToWatchClicked,
             onWatchedClicked = onWatchedClicked,
-            isExpanded = false
         )
     }
 }
@@ -74,7 +72,7 @@ fun MovieDetailsContent(
     onToWatchClicked: () -> Unit,
     onWatchedClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    isExpanded: Boolean = false
+    isExpanded: Boolean = false,
 ) {
     val movie = movieDetailsUiState.selectedMovie
 
@@ -144,101 +142,6 @@ fun MovieDetailsContent(
         Spacer(modifier = Modifier.height(if (isExpanded) 48.dp else 24.dp))
 
         // ACTION ROW
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            SaveButton(
-                label = "Save",
-                icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                onClick = onToWatchClicked
-            )
-            SaveButton(
-                label = "Watched",
-                icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                onClick = onWatchedClicked
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun MovieDetailsContent(
-    movieDetailsUiState: MovieDetailsUiState,
-    onClose: () -> Unit,
-    onToWatchClicked: () -> Unit,
-    onWatchedClicked: () -> Unit,
-    isExpandedSidePane: Boolean
-) {
-    val movie = movieDetailsUiState.selectedMovie
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(if (isExpandedSidePane) 32.dp else 24.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // CLOSE BUTTON (The 'X')
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
-            }
-        }
-
-        // IMAGE - Larger in side pane
-        Surface(
-            modifier = Modifier
-                .width(if (isExpandedSidePane) 340.dp else 260.dp)
-                .height(if (isExpandedSidePane) 200.dp else 150.dp)
-                .clip(MaterialTheme.shapes.extraLarge),
-            tonalElevation = 4.dp,
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            AsyncImage(
-                model = movie.content?.thumbnail,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // TITLE
-        Text(
-            text = movie.title,
-            style = if (isExpandedSidePane) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-
-        // GENRES
-        FlowRow(
-            horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
-        ) {
-            movie.content?.genres?.forEach { genre ->
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                ) {
-                    Text(
-                        text = genre,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(if (isExpandedSidePane) 48.dp else 24.dp))
-
-        // ACTIONS
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly

@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -126,7 +125,7 @@ fun RankingListScreen(
                             onClose = { movieDetailsViewModel.deselectMovie() },
                             onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
                             onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
-                            isExpandedSidePane = true
+                            isExpanded = true
                         )
                     }
                 }

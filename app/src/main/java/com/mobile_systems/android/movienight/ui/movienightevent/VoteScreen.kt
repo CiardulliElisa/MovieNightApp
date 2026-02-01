@@ -190,7 +190,7 @@ fun VoteScreen(
                                 onClose = { movieDetailsViewModel.deselectMovie() },
                                 onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
                                 onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
-                                isExpandedSidePane = true
+                                isExpanded = true
                             )
                         }
                     }
