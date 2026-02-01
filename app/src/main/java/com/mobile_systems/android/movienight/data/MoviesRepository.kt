@@ -10,10 +10,13 @@ interface MoviesRepository {
     suspend fun getMovieDetails(movieId: String) : MovieDetails
 }
 
+// This class handles the fetching of data from an API.
+//It implements the above MoviesRepository
 class NetworkMoviesRepository(
     private val kinoCheckRetrofitService: MoviesApiService
 ) : MoviesRepository {
 
+    //Gets a list of movies from the API, based on a chosen genre, if an error occurs it returns an empty list
     override suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie> {
         return try {
             val randomPage = (5..100).random()
@@ -24,12 +27,16 @@ class NetworkMoviesRepository(
         }
     }
 
+    //Gets a list of a selected size of random movies from the API, if an error occurs it returns an empty list
     override suspend fun getMovies(count: Int): List<Movie> {
 
         val movieList = mutableListOf<Movie>()
+
+        //Keep track of attempts to not get stuck in an infinite loop.
         var attempts = 0
         val maxAttempts = count * 2
 
+        //Get movies until either the list is filled, or there are no more available attempts
         while (movieList.size < count && attempts < maxAttempts) {
             attempts++
             try {
@@ -45,12 +52,12 @@ class NetworkMoviesRepository(
         return movieList
     }
 
+    //Gets the details of a chosen movie from the API, if an error occurs it returns an empty MovieDetails object
     override suspend fun getMovieDetails(movieId: String): MovieDetails {
         return try {
             kinoCheckRetrofitService.getMovieDetails(movieId)
         } catch (e: Exception) {
-            android.util.Log.e("REPO_ERROR", "Mapping failed", e)
-            MovieDetails(title = "Error Loading Details")
+            MovieDetails()
         }
     }
 }

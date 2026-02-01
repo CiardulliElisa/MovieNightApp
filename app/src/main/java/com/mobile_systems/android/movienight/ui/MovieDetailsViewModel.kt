@@ -20,18 +20,15 @@ class MovieDetailsViewModel(
         private set
 
     fun selectMovie(movieId: String) {
-        // 1. Trigger the dialog to show immediately
         movieDetailsUiState = movieDetailsUiState.copy(isSelected = true)
 
         viewModelScope.launch {
             try {
-                // 2. Fetch the full MovieDetails object from your repository
                 val movieData = moviesRepository.getMovieDetails(movieId)
 
                 val toWatchEntry = savedMoviesRepository.getMovieToWatchById(movieId).firstOrNull()
                 val watchedEntry = savedMoviesRepository.getWatchedMovieById(movieId).firstOrNull()
 
-                // 3. MAP THE DATA: This is the missing link!
                 movieDetailsUiState = movieDetailsUiState.copy(
                     selectedMovie = movieData,
                     isToWatch = toWatchEntry != null,
