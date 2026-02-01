@@ -16,10 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
-import com.mobile_systems.android.movienight.ui.components.FriendIcon
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -60,7 +61,7 @@ fun AddFriendsScreen(
         }
     }
 
-    // Dialog that shows up to enter a name
+    // Dialog that shows up to enter a user's name
     if (movieNightEventUiState.showEnterNameDialog) {
         AddFriendDialog(
             friendNameInput = friendNameInput,
@@ -70,6 +71,7 @@ fun AddFriendsScreen(
         )
     }
 
+    //When a user clicks anywhere on the screen, the selection of the currently selected icon is cleared
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -80,45 +82,7 @@ fun AddFriendsScreen(
                 movieNightEventViewModel.clearSelection()
             }
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(top = 100.dp, start = 16.dp, end = 16.dp, bottom = 120.dp)
-        ) {
-            Text(
-                text = "Add Friends",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                maxItemsInEachRow = 3
-            ) {
-                // Use list from uiState
-                movieNightEventUiState.friends.forEach { friend ->
-                    FriendIcon(
-                        friend = friend,
-                        isPrimed = movieNightEventUiState.friendToRemove == friend,
-                        onFriendClick = { movieNightEventViewModel.onFriendClicked(friend) }
-                    )
-                }
-
-                OutlinedIconButton(
-                    onClick = { movieNightEventViewModel.openEnterNameDialog() },
-                    modifier = Modifier.size(84.dp),
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Friend")
-                }
-            }
-        }
-
-        // TOP NAVIGATION ROW
+        // Top row, containing the back arrow to go back to the home screen and the theme toggle
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -126,37 +90,79 @@ fun AddFriendsScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            //Back arrow
             IconButton(onClick = onBackClicked) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
             }
 
+            //Theme toggle button
             ThemeToggleButton(
                 onThemeToggle = { themeViewModel.toggleDarkTheme() },
                 isDarkTheme = themeUiState.isDarkTheme,
             )
         }
 
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(top = 100.dp, start = 16.dp, end = 16.dp, bottom = 120.dp)
+        ) {
+            //Title of the page
+            Text(
+                text = "Add Friends",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+
+            // Row of icons representing the participants
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                maxItemsInEachRow = 3
+            ) {
+                //Create an icon for each user participating in the movie night
+                movieNightEventUiState.friends.forEach { friend ->
+                    FriendIcon(
+                        friend = friend,
+                        isSelected = movieNightEventUiState.friendToRemove == friend,
+                        onFriendClick = { movieNightEventViewModel.onFriendClicked(friend) }
+                    )
+                }
+
+                //Plus icon button to add a new user to the movie night
+                OutlinedIconButton(
+                    onClick = { movieNightEventViewModel.openEnterNameDialog() },
+                    modifier = Modifier.size(84.dp),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Friend"
+                    )
+                }
+            }
+        }
+
+        //T possible error will appear above the start button
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = 90.dp)
         )
 
-        // START BUTTON
+        // Start Button to start the voting process, can only be started if there is at least one participant
         if (movieNightEventUiState.friends.isNotEmpty()) {
             Surface(
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                tonalElevation = 8.dp,
                 color = MaterialTheme.colorScheme.surface
             ) {
                 Button(
-                    onClick = {
-                        movieNightEventViewModel.startMovieNightEvent()
-                        onStartClicked()
-
-                              },
+                    onClick = { onStartClicked() },
                     modifier = Modifier.fillMaxWidth().padding(16.dp).height(64.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = MaterialTheme.shapes.extraLarge
                 ) {
                     Text("START", fontWeight = FontWeight.ExtraBold)
                 }
@@ -204,4 +210,41 @@ fun AddFriendDialog(
             }
         }
     )
+}
+
+// A colored icon representing a participant in the movie night.
+// It can be pressed to be selected and pressed again to be deleted
+@Composable
+fun FriendIcon(
+    friend: Friend,
+    isSelected: Boolean,
+    onFriendClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 8.dp)
+    ) {
+        FilledTonalIconButton(
+            onClick = onFriendClick,
+            modifier = Modifier.size(84.dp),
+            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                containerColor = friend.color
+            )
+        ) {
+            Icon(
+                imageVector = if (isSelected) Icons.Default.Close else friend.icon,
+                contentDescription = "Random Friend Icon",
+                modifier = Modifier.size(48.dp),
+                tint = Color.White
+            )
+        }
+
+        //Label underneath the icon, containing the name of the user
+        Text(
+            text = friend.name,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(top = 8.dp),
+            color = Color.White
+        )
+    }
 }
