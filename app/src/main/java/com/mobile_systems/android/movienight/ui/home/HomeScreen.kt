@@ -2,6 +2,12 @@ package com.mobile_systems.android.movienight.ui.home
 
 import Movie
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +27,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -43,7 +52,6 @@ import com.mobile_systems.android.movienight.ui.MovieViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsContent
-import com.mobile_systems.android.movienight.ui.components.MovieNightButton
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 import com.mobile_systems.android.movienight.ui.utils.MovieNightContentType
 import kotlinx.coroutines.launch
@@ -252,4 +260,30 @@ fun LoadingItemPlaceholder() {
             )
         }
     }
+}
+
+//Button to start a movie night event
+@Composable
+fun MovieNightButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ExtendedFloatingActionButton(
+        onClick = { onClick() },
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = modifier
+            .height(64.dp)
+            .width(200.dp),
+        icon = {
+            Icon(
+                Icons.Filled.Movie,
+                "Movie Night Button"
+            ) },
+        text = {
+            Text(
+                text = "Movie Night!",
+                style = MaterialTheme.typography.titleLarge
+            ) },
+    )
 }
