@@ -10,7 +10,8 @@ import com.mobile_systems.android.movienight.ui.home.HomeViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.MovieNightEventViewModel
 
 /**
- * Provides Factory to create instance of ViewModel for the entire Inventory app
+ * AppViewModelProvider centralizes the creation of all view models in the app.
+ * It makes sure the view models are created only once and use the correct repositories defined in the container.
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -42,5 +43,6 @@ object AppViewModelProvider {
     }
 }
 
+/** Accesses the custom Application where the container was created */
 fun CreationExtras.movieNightApplication(): MovieNightApplication =
     (this[AndroidViewModelFactory.APPLICATION_KEY] as MovieNightApplication)

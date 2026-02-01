@@ -38,26 +38,28 @@ fun MovieNightApp(
     navController: NavHostController = rememberNavController(),
     windowSize: WindowWidthSizeClass
 ) {
-    val contentType: MovieNightContentType
+
+    //Create view models using the factory
     val movieViewModel: MovieViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val themeViewModel: ThemeViewModel = viewModel()
     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val movieDetailsViewModel: MovieDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val movieNightEventViewModel: MovieNightEventViewModel = viewModel(factory = AppViewModelProvider.Factory)
+
+    val themeViewModel: ThemeViewModel = viewModel()
     val themeUiState by themeViewModel.uiState.collectAsState()
 
-    when (windowSize) {
+    val contentType: MovieNightContentType = when (windowSize) {
         WindowWidthSizeClass.Compact -> {
-            contentType = MovieNightContentType.LIST_ONLY
+            MovieNightContentType.LIST_ONLY
         }
         WindowWidthSizeClass.Medium -> {
-            contentType = MovieNightContentType.LIST_ONLY
+            MovieNightContentType.LIST_ONLY
         }
         WindowWidthSizeClass.Expanded -> {
-            contentType = MovieNightContentType.LIST_AND_DETAIL
+            MovieNightContentType.LIST_AND_DETAIL
         }
         else -> {
-            contentType = MovieNightContentType.LIST_ONLY
+            MovieNightContentType.LIST_ONLY
         }
     }
 
