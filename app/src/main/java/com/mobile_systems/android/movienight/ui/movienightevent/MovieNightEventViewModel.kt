@@ -68,12 +68,20 @@ class MovieNightEventViewModel(
             _uiState.update { currentState ->
                 currentState.copy(errorMessage = null) }
 
-            try {
-
-                val fetchedMovies = moviesRepository.getMovies(10)
-
+            val fetchedMovies = try {
+                moviesRepository.getMovies(10)
+            } catch (e: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(
+                        errorMessage = "Check your internet connection and try again",
+                    )
+                }
+                null
+            }
+            if(fetchedMovies != null && fetchedMovies.isNotEmpty()) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        errorMessage = null,
                         isMovieNightStarted = true,
                         movieList = fetchedMovies,
                         friendsToVote = currentState.friends,
@@ -81,14 +89,6 @@ class MovieNightEventViewModel(
                         currentMovieIndex = 0,
                         currentFriend = currentState.friends.randomOrNull(),
                         showNewFriendDialog = true,
-                    )
-                }
-
-            } catch (e: Exception) {
-                delay(500)
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        errorMessage = "Check your internet connection and try again",
                     )
                 }
             }

@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
@@ -40,6 +41,7 @@ import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 import com.mobile_systems.android.movienight.ui.utils.MovieNightContentType
 import kotlinx.coroutines.launch
 
+/**This screen is used in turns by the various participants of a movie night event to vote on the movies they like and dislike*/
 @Composable
 fun VoteScreen(
     movieNightEventViewModel: MovieNightEventViewModel,
@@ -52,113 +54,153 @@ fun VoteScreen(
     contentType: MovieNightContentType
 ) {
 
+    // Ui states
     val movieNightEventUiState by movieNightEventViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
     val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
 
+    // Coroutine scope
     val coroutineScope = rememberCoroutineScope()
+
     val isDetailVisible = movieDetailsUiState.isSelected
 
-    // --- RESET SIDEBAR ON ENTRY ONLY ---
+    //Deselect the movie that may have been selected in another screen
     LaunchedEffect(Unit) {
         movieDetailsViewModel.deselectMovie()
     }
 
+    //Handle the end of the movie night event
     LaunchedEffect(movieNightEventUiState.isMovieNightFinished) {
         if (movieNightEventUiState.isMovieNightFinished) {
             onMovieNightFinished()
         }
     }
 
-    Scaffold(modifier = modifier.fillMaxSize()) { innerPadding ->
-        Row(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            // LEFT COLUMN
-            Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                Box(modifier = Modifier.weight(1f)) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+    //
+    Scaffold(modifier = modifier.fillMaxSize()) {
+        innerPadding ->
+
+        //Contains the voting process and the side panel (on non compact devices)
+        Row(
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
+        ) {
+            //Left column - main page
+            Column(
+                modifier = Modifier.weight(1f).fillMaxHeight()
+            ) {
+                // Theme Toggle Button
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    ThemeToggleButton(isDarkTheme = themeUiState.isDarkTheme, onThemeToggle = { themeViewModel.toggleDarkTheme() })
+                }
+
+                // Header: participant's name and icon, as chosen in the screen before (add friends)
+                movieNightEventUiState.currentFriend?.let { friend ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     ) {
-                        // Theme Toggle
-                        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.End) {
-                            ThemeToggleButton(isDarkTheme = themeUiState.isDarkTheme, onThemeToggle = { themeViewModel.toggleDarkTheme() })
-                        }
-
-                        // Friend Identity
-                        movieNightEventUiState.currentFriend?.let { friend ->
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
-                                Surface(shape = CircleShape, color = friend.color.copy(alpha = 0.2f), modifier = Modifier.size(48.dp)) {
-                                    Icon(friend.icon, null, tint = friend.color, modifier = Modifier.padding(10.dp))
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Text(friend.name, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        // Movie Poster
-                        Card(
-                            shape = RoundedCornerShape(28.dp),
-                            modifier = Modifier.fillMaxWidth().height(220.dp).padding(horizontal = 16.dp)
-                                .clickable { movieNightEventUiState.currentMovie?.data?.movieId?.let { id -> movieDetailsViewModel.selectMovie(id) } },
-                            elevation = CardDefaults.cardElevation(16.dp)
+                        //Participant's Icon
+                        Surface(
+                            shape = CircleShape,
+                            color = friend.color,
+                            modifier = Modifier.size(48.dp)
                         ) {
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current).data(movieNightEventUiState.currentMovie?.thumbnail).crossfade(true).build(),
-                                    contentDescription = "",
-                                    placeholder = rememberVectorPainter(Icons.Default.Movie),
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Icon(Icons.Default.Info, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(24.dp))
-                            }
+                            Icon(
+                                friend.icon,
+                                "Randomly selected icon",
+                                tint = Color.White,
+                                modifier = Modifier.padding(10.dp))
                         }
 
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.width(16.dp))
 
-                        // Voting Buttons
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            VoteButton(Icons.Default.Close, Color.Red, { movieNightEventViewModel.updateDislikes() }, "Dislike")
-                            VoteButton(Icons.Default.Check, Color(0xFF4CAF50), { movieNightEventViewModel.updateLikes() }, "Like")
-                        }
-                        Spacer(modifier = Modifier.weight(1.2f))
-                    }
-
-                    if (movieNightEventUiState.showNewFriendDialog) {
-                        TurnConfirmationDialog(
-                            friendName = movieNightEventUiState.currentFriend?.name,
-                            friendIcon = movieNightEventUiState.currentFriend?.icon,
-                            friendColor = movieNightEventUiState.currentFriend?.color,
-                            onConfirm = { movieNightEventViewModel.closeNewFriendDialog() }
+                        //Participant's name
+                        Text(
+                            friend.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.ExtraBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
-                MovieNightEventNavBar(
-                    onHomeClick = { movieNightEventViewModel.resetMovieNight(); onHomeClicked() },
-                    onTryAgainClick = { movieNightEventViewModel.resetMovieNight(); onTryAgainClicked() }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Movie Picture - thumbnail
+                Card(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(220.dp)
+                            .padding(horizontal = 16.dp)
+                        .clickable { movieNightEventUiState.currentMovie?.data?.movieId?.let { id -> movieDetailsViewModel.selectMovie(id) } },
+                    elevation = CardDefaults.cardElevation(16.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current).data(movieNightEventUiState.currentMovie?.thumbnail).crossfade(true).build(),
+                            contentDescription = "",
+                            placeholder = rememberVectorPainter(Icons.Default.Movie),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        //Small info icon on the clickable movie picture
+                        Icon(Icons.Default.Info, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(24.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Voting row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    //Dislike button
+                    VoteButton(Icons.Default.Close, Color.Red, { movieNightEventViewModel.updateDislikes() }, "Dislike")
+
+                    //Likes Button
+                    VoteButton(Icons.Default.Check, Color(0xFF4CAF50), { movieNightEventViewModel.updateLikes() }, "Like")
+                }
+                Spacer(modifier = Modifier.weight(1.2f))
+            }
+
+            if (movieNightEventUiState.showNewFriendDialog) {
+                TurnConfirmationDialog(
+                    friendName = movieNightEventUiState.currentFriend?.name,
+                    friendIcon = movieNightEventUiState.currentFriend?.icon,
+                    friendColor = movieNightEventUiState.currentFriend?.color,
+                    onConfirm = { movieNightEventViewModel.closeNewFriendDialog() }
                 )
             }
+        }
+        MovieNightEventNavBar(
+            onHomeClick = { movieNightEventViewModel.resetMovieNight(); onHomeClicked() },
+            onTryAgainClick = { movieNightEventViewModel.resetMovieNight(); onTryAgainClicked() }
+        )
+    }
 
-            // RIGHT COLUMN (DETAIL)
-            if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
-                AnimatedVisibility(visible = isDetailVisible, enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn()) {
-                    Surface(modifier = Modifier.width(400.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 2.dp) {
-                        MovieDetailsContent(
-                            movieDetailsUiState = movieDetailsUiState,
-                            onClose = { movieDetailsViewModel.deselectMovie() },
-                            onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
-                            onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
-                            isExpandedSidePane = true
-                        )
-                    }
-                }
-            } else if (isDetailVisible) {
-                Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
-                    MovieDetailsCard(movieDetailsUiState = movieDetailsUiState, onClose = { movieDetailsViewModel.deselectMovie() }, onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } }, onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
-                }
+    // RIGHT COLUMN (DETAIL)
+    if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
+        AnimatedVisibility(visible = isDetailVisible, enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn()) {
+            Surface(modifier = Modifier.width(400.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 2.dp) {
+                MovieDetailsContent(
+                    movieDetailsUiState = movieDetailsUiState,
+                    onClose = { movieDetailsViewModel.deselectMovie() },
+                    onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } },
+                    onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } },
+                    isExpandedSidePane = true
+                )
             }
+        }
+    } else if (isDetailVisible) {
+        Dialog(onDismissRequest = { movieDetailsViewModel.deselectMovie() }) {
+            MovieDetailsCard(movieDetailsUiState = movieDetailsUiState, onClose = { movieDetailsViewModel.deselectMovie() }, onToWatchClicked = { coroutineScope.launch { movieDetailsViewModel.toggleToWatch() } }, onWatchedClicked = { coroutineScope.launch { movieDetailsViewModel.toggleWatched() } })
         }
     }
 }

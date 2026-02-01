@@ -23,6 +23,7 @@ import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
 
+/** This screen is used to add participants to the movie night event and to actually start the voting process */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddFriendsScreen(
@@ -57,7 +58,6 @@ fun AddFriendsScreen(
                 duration = SnackbarDuration.Short
             )
             movieNightEventViewModel.consumeError()
-
         }
     }
 
