@@ -90,7 +90,7 @@ fun MovieNightApp(
                         movieViewModel = movieViewModel,
                     )
                 }
-                //From the add friends page when a new movie night is ready navigate to the vote page
+                //When a new movie night is ready navigate to the vote page
                 // Also navigate back to the home page
                 composable(route = MovieNightApp.AddFriends.name) {
                     AddFriendsScreen(
@@ -102,8 +102,9 @@ fun MovieNightApp(
                         modifier = Modifier,
                     )
                 }
-                //From the vote page if the movie night is finished navigate to the final rankings page
-                // Or navigate back to the add friends page or the home page through the navigation buttons
+                //From the vote page navigate back to the add friends page, reset the movie night event to prepare for a new one
+                // Navigate to the final rankings page if the movie night is finished
+                // Navigate back to the add friends page or the home page through the navigation buttons
                 // Once the movie night is finished all information is lost about the vote pages and add friends page
                 composable(route = MovieNightApp.Vote.name) {
                     BackHandler {
@@ -125,7 +126,7 @@ fun MovieNightApp(
                         contentType = contentType
                     )
                 }
-                //From the final rankings page navigate back to the home page
+                //From the final rankings page navigate back to the home page or the add friends page to start a new movie night
                 composable(route = MovieNightApp.RankingList.name) {
                     RankingListScreen(
                         movieNightEventViewModel = movieNightEventViewModel,
