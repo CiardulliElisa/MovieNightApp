@@ -3,7 +3,6 @@ package com.mobile_systems.android.movienight.data
 import Movie
 import MovieDetails
 import com.mobile_systems.android.movienight.data.network.MoviesApiService
-import kotlinx.serialization.json.Json
 
 interface MoviesRepository {
     suspend fun getMoviesByGenre(genres: String, limit: Int): List<Movie>
@@ -35,7 +34,7 @@ class NetworkMoviesRepository(
             attempts++
             try {
                 val randomPage = (1..500).random()
-                val responseMap = kinoCheckRetrofitService.getMovies(randomPage)
+                val responseMap = kinoCheckRetrofitService.getMovie(randomPage)
                 val movie = responseMap.values.firstOrNull()
                 if (movie != null && movieList.none { it.data.movieId == movie.data.movieId }) {
                     movieList.add(movie)
