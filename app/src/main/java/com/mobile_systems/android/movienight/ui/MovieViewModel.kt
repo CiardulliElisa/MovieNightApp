@@ -29,7 +29,7 @@ class MovieViewModel(private val moviesRepository: MoviesRepository) : ViewModel
         viewModelScope.launch {
             movieUiState = MovieUiState.Loading
             try {
-                val genresToFetch = listOf("Drama", "Animation", "Science Fiction", "Mystery")
+                val genresToFetch = getCategories()
 
                 val resultsMap = mutableMapOf<String, List<Movie>>()
 
@@ -58,5 +58,9 @@ class MovieViewModel(private val moviesRepository: MoviesRepository) : ViewModel
                 movieUiState = MovieUiState.Error
             }
         }
+    }
+
+    fun getCategories(): List<String> {
+        return listOf("Drama", "Animation", "Science Fiction", "Mystery")
     }
 }
