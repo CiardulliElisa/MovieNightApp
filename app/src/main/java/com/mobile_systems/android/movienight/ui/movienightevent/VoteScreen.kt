@@ -140,7 +140,7 @@ fun VoteScreen(
                         shape = MaterialTheme.shapes.extraLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
-                            .fillMaxWidth(if (contentType == MovieNightContentType.LIST_AND_DETAIL) 0.5f else 1f)
+                            .fillMaxWidth(if (contentType == MovieNightContentType.LIST_AND_DETAIL) 0.4f else 1f)
                             .aspectRatio(16f / 9f)
                             .align(Alignment.CenterHorizontally)
                             .clickable {
@@ -152,7 +152,7 @@ fun VoteScreen(
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
                             AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current).data(movieNightEventUiState.currentMovie?.thumbnail).crossfade(true).build(),
+                                model = movieNightEventUiState.currentMovie?.thumbnail,
                                 contentDescription = "Movie Image",
                                 placeholder = rememberVectorPainter(Icons.Default.Movie),
                                 modifier = Modifier.fillMaxSize(),
