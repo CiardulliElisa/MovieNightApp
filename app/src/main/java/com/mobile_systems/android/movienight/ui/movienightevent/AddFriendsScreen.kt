@@ -19,9 +19,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.mobile_systems.android.movienight.data.Friend
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.ThemeToggleButton
+import com.mobile_systems.android.movienight.ui.home.LoadingScreen
 
 /** This screen is used to add participants to the movie night event and to actually start the voting process */
 @OptIn(ExperimentalLayoutApi::class)
@@ -82,6 +84,13 @@ fun AddFriendsScreen(
                 movieNightEventViewModel.clearSelection()
             }
     ) {
+        if (movieNightEventUiState.isLoadingMovies) {
+            MovieNightLoadingScreen(
+                message = "Loading movies...",
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
         // Top row, containing the back arrow to go back to the home screen and the theme toggle
         Row(
             modifier = Modifier
@@ -246,5 +255,33 @@ fun FriendIcon(
             modifier = Modifier.padding(top = 8.dp),
             color = Color.White
         )
+    }
+}
+
+//The loading screen for when the movies are being fetched for the movie night event
+@Composable
+fun MovieNightLoadingScreen(
+    message: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+        modifier = modifier
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(48.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
     }
 }

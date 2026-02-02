@@ -63,7 +63,9 @@ class MovieNightEventViewModel(
      */
     fun startMovieNightEvent() {
         viewModelScope.launch {
-            _uiState.update { it.copy(errorMessage = null) }
+            _uiState.update { it.copy(
+                isLoadingMovies = true,
+                errorMessage = null) }
 
             try {
                 val fetchedMovies = moviesRepository.getMovies(10)
@@ -87,6 +89,8 @@ class MovieNightEventViewModel(
                 // Now this will correctly trigger on airplane mode or API 404s!
                 Log.e("VM_ERROR", "Fetch failed", e)
                 _uiState.update { it.copy(errorMessage = "Check your internet connection and try again") }
+            }  finally {
+                _uiState.update { it.copy(isLoadingMovies = false)}
             }
         }
     }

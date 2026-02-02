@@ -153,7 +153,7 @@ fun VoteScreen(
                         Box(modifier = Modifier.fillMaxSize()) {
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current).data(movieNightEventUiState.currentMovie?.thumbnail).crossfade(true).build(),
-                                contentDescription = "",
+                                contentDescription = "Movie Image",
                                 placeholder = rememberVectorPainter(Icons.Default.Movie),
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop

@@ -5,6 +5,9 @@ import com.mobile_systems.android.movienight.data.Friend
 
 data class MovieNightEventUiState(
 
+    //Handling the loading of the movies
+    val isLoadingMovies: Boolean = false,
+
     //Adding and removing friends to participate in the movie night event
     val friends: List<Friend> = emptyList(),
     val friendToRemove: Friend? = null,
