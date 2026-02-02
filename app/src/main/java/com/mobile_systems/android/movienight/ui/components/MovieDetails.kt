@@ -83,95 +83,102 @@ fun MovieDetailsContent(
     //The movie for which to display the information
     val movie = movieDetailsUiState.selectedMovie
 
-    //Handle different padding for the the different window sizes
-    var columnModifier = modifier.padding(if (isExpanded) 32.dp else 24.dp)
-    if (isExpanded) {
-        columnModifier = columnModifier.verticalScroll(rememberScrollState())
-    }
-
-    Column(
-        modifier = columnModifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        // Button to close
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
-            }
+    //Check if details are available for the movie, if not display an error instead of the details
+    if (movie.title != "") {
+        //Handle different padding for the the different window sizes
+        var columnModifier = modifier.padding(if (isExpanded) 32.dp else 24.dp)
+        if (isExpanded) {
+            columnModifier = columnModifier.verticalScroll(rememberScrollState())
         }
 
-        //Movie Picture
-        Surface(
-            modifier = Modifier
-                .width(if (isExpanded) 340.dp else 260.dp)
-                .height(if (isExpanded) 200.dp else 150.dp)
-                .clip(MaterialTheme.shapes.extraLarge),
-            tonalElevation = 4.dp,
-            shape = MaterialTheme.shapes.extraLarge
+        Column(
+            modifier = columnModifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            AsyncImage(
-                model = movie.content?.thumbnail,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Movie Title
-        Text(
-            text = movie.title,
-            style = if (isExpanded) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-
-        // Movie Genres List
-        FlowRow(
-            horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
-        ) {
-            //A small label to contain each genre
-            movie.content?.genres?.forEach { genre ->
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    tonalElevation = 2.dp,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                ) {
-                    Text(
-                        text = genre,
-                        style = if (isExpanded) MaterialTheme.typography.labelLarge else MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+            // Button to close
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                IconButton(onClick = onClose) {
+                    Icon(Icons.Default.Close, contentDescription = "Close")
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            //Movie Picture
+            Surface(
+                modifier = Modifier
+                    .width(if (isExpanded) 340.dp else 260.dp)
+                    .height(if (isExpanded) 200.dp else 150.dp)
+                    .clip(MaterialTheme.shapes.extraLarge),
+                tonalElevation = 4.dp,
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                AsyncImage(
+                    model = movie.content?.thumbnail,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
-        // Save Buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            //Button to save movie to watchlist
-            SaveButton(
-                label = if (movieDetailsUiState.isToWatch) "Saved" else "Save",
-                icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                onClick = onToWatchClicked
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Movie Title
+            Text(
+                text = movie.title,
+                style = if (isExpanded) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
-            //Button to mark movie as watched
-            SaveButton(
-                label = if (movieDetailsUiState.isWatched) "Watched" else "Not Watched",
-                icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                onClick = onWatchedClicked
-            )
+
+            // Movie Genres List
+            FlowRow(
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
+            ) {
+                //A small label to contain each genre
+                movie.content?.genres?.forEach { genre ->
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        tonalElevation = 2.dp,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    ) {
+                        Text(
+                            text = genre,
+                            style = if (isExpanded) MaterialTheme.typography.labelLarge else MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Save Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                //Button to save movie to watchlist
+                SaveButton(
+                    label = if (movieDetailsUiState.isToWatch) "Saved" else "Save",
+                    icon = if (movieDetailsUiState.isToWatch) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    onClick = onToWatchClicked
+                )
+                //Button to mark movie as watched
+                SaveButton(
+                    label = if (movieDetailsUiState.isWatched) "Watched" else "Not Watched",
+                    icon = if (movieDetailsUiState.isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    onClick = onWatchedClicked
+                )
+            }
         }
+    } else {
+        ErrorLoadingDetails(
+            modifier
+        )
     }
 }
 
@@ -188,5 +195,37 @@ private fun SaveButton(label: String, icon: ImageVector, onClick: () -> Unit) {
             )
         }
         Text(label, style = MaterialTheme.typography.labelMedium)
+    }
+}
+
+@Composable
+private fun ErrorLoadingDetails(
+    modifier : Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Error Icon
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Error Message
+        Text(
+            text = "No movie details found",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
     }
 }
