@@ -138,11 +138,16 @@ fun VoteScreen(
                     // Movie Picture - thumbnail
                     Card(
                         shape = MaterialTheme.shapes.extraLarge,
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .height(220.dp)
-                                .padding(horizontal = 16.dp)
-                                .clickable { movieNightEventUiState.currentMovie?.data?.movieId?.let { id -> movieDetailsViewModel.selectMovie(id) } },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(if (contentType == MovieNightContentType.LIST_AND_DETAIL) 0.5f else 1f)
+                            .aspectRatio(16f / 9f)
+                            .align(Alignment.CenterHorizontally)
+                            .clickable {
+                                movieNightEventUiState.currentMovie?.data?.movieId?.let { id ->
+                                    movieDetailsViewModel.selectMovie(id)
+                                }
+                            },
                         elevation = CardDefaults.cardElevation(16.dp)
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
