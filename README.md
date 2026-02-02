@@ -23,7 +23,7 @@ A secondary purpose of the app is discovering new movies and keeping track of th
 
     Add participants to a new session
 
-    <img src="Resources/AddingFriendsScreenShot.png" width="30%">
+    <img src="resources/AddFriendsScreenShot.png" width="30%">
 
 2. **Generate Movies**: 
 
@@ -33,13 +33,13 @@ A secondary purpose of the app is discovering new movies and keeping track of th
 
     Each round a different participant votes "Yes" or "No" on each movie in the list
 
-    <img src="Resources/StartingRoundScreenShot.png" width="30%"><img src="Resources/VotingScreenShot.png" width="30%">
+    <img src="resources/StartingRoundScreenShot.png" width="30%"><img src="resources/VotingScreenShot.png" width="30%">
 
 4. **Final Ranking**: 
 
     Show the list of movies sorted first by most likes, then by least dislikes and finally by the movie id
 
-    <img src="Resources/FinalRankingScreenShot.png" width="30%">
+    <img src="resources/FinalRankingScreenShot.png" width="30%">
 
 ### Movie Exploration
 
