@@ -198,6 +198,7 @@ private fun SaveButton(label: String, icon: ImageVector, onClick: () -> Unit) {
     }
 }
 
+//Tells the user that no details were found for the selected movie
 @Composable
 private fun ErrorLoadingDetails(
     modifier : Modifier
