@@ -1,6 +1,7 @@
 package com.mobile_systems.android.movienight.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -83,8 +85,12 @@ fun MovieDetailsContent(
     //The movie for which to display the information
     val movie = movieDetailsUiState.selectedMovie
 
+    //Check if the details are still loading
+    if (movieDetailsUiState.isLoading) {
+        LoadingDetails(modifier)
+    }
     //Check if details are available for the movie, if not display an error instead of the details
-    if (movie.title != "") {
+    else if (movie.title != "") {
         //Handle different padding for the the different window sizes
         var columnModifier = modifier.padding(if (isExpanded) 32.dp else 24.dp)
         if (isExpanded) {
@@ -227,6 +233,22 @@ private fun ErrorLoadingDetails(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun LoadingDetails(
+    modifier: Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

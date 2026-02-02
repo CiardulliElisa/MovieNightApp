@@ -25,7 +25,7 @@ class MovieDetailsViewModel(
     // and the watched or to watch information about the movie from the local database
     fun selectMovie(movieId: String) {
 
-        movieDetailsUiState = movieDetailsUiState.copy(isSelected = true)
+        movieDetailsUiState = movieDetailsUiState.copy(isSelected = true, isLoading = true)
 
         viewModelScope.launch {
             try {
@@ -40,7 +40,8 @@ class MovieDetailsViewModel(
                 movieDetailsUiState = movieDetailsUiState.copy(
                     selectedMovie = movieData,
                     isToWatch = toWatchEntry != null,
-                    isWatched = watchedEntry != null
+                    isWatched = watchedEntry != null,
+                    isLoading = false
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -87,6 +88,7 @@ class MovieDetailsViewModel(
 
     //Deselects the selected movie and resets the ui state
     fun deselectMovie() {
+        movieDetailsUiState = movieDetailsUiState.copy(isSelected = false)
         movieDetailsUiState = MovieDetailsUiState()
     }
 }

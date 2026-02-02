@@ -12,6 +12,7 @@ data class MovieDetailsUiState(
     val isToWatch: Boolean = false,
     val isWatched: Boolean = false,
     val selectedMovie: MovieDetails = MovieDetails(),
+    val isLoading: Boolean = false,
 )
 
 //Converts a database entity, a movie to watch, to a movie
