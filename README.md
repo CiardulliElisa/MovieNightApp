@@ -9,7 +9,7 @@ The main goal of this application is helping users decide, either alone or as a 
 A secondary purpose of the app is discovering new movies and keeping track of them in a watchlist or setting them as already watched.
 
 ## Movie Night Demo
-
+[Movie Night App Demo](resources/DemoCompressed.webm)
 
 ## Installation
 1. Clone the GitLab repository
