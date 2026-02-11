@@ -23,14 +23,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
 import com.mobile_systems.android.movienight.ui.components.MovieDetailsCard
@@ -76,7 +73,6 @@ fun VoteScreen(
         }
     }
 
-    //
     Scaffold(modifier = modifier.fillMaxSize()) {
             innerPadding ->
 
@@ -95,7 +91,9 @@ fun VoteScreen(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        ThemeToggleButton(isDarkTheme = themeUiState.isDarkTheme, onThemeToggle = { themeViewModel.toggleDarkTheme() })
+                        ThemeToggleButton(
+                            isDarkTheme = themeUiState.isDarkTheme,
+                            onThemeToggle = { themeViewModel.toggleDarkTheme() })
                     }
 
                     // Header: participant's name and icon, as chosen in the screen before (add friends)
@@ -140,7 +138,7 @@ fun VoteScreen(
                         shape = MaterialTheme.shapes.extraLarge,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
-                            .fillMaxWidth(if (contentType == MovieNightContentType.LIST_AND_DETAIL) 0.4f else 1f)
+                            .fillMaxWidth(if (contentType == MovieNightContentType.EXPANDED) 0.4f else 1f)
                             .aspectRatio(16f / 9f)
                             .align(Alignment.CenterHorizontally)
                             .clickable {
@@ -180,7 +178,7 @@ fun VoteScreen(
                 }
 
                 // Right Column - Movie details (Side panel logic)
-                if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
+                if (contentType == MovieNightContentType.EXPANDED) {
                     AnimatedVisibility(
                         visible = isDetailVisible,
                         enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn()
@@ -222,7 +220,7 @@ fun VoteScreen(
     }
 
     // Show the smaller dialog box with a compact device
-    if (contentType != MovieNightContentType.LIST_AND_DETAIL && isDetailVisible) {
+    if (contentType != MovieNightContentType.EXPANDED && isDetailVisible) {
         MovieDetailsCard(
             movieDetailsUiState = movieDetailsUiState,
             onClose = { movieDetailsViewModel.deselectMovie() },

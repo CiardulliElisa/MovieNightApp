@@ -118,7 +118,6 @@ class MovieNightEventViewModel(
         friendNameInput = ""
     }
 
-
     //Adds user to the movie night event
     fun addFriend() {
         //New participant and assigns a random color and icon to them.

@@ -91,26 +91,6 @@ fun AddFriendsScreen(
             )
         }
 
-        // Top row, containing the back arrow to go back to the home screen and the theme toggle
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            //Back arrow
-            IconButton(onClick = onBackClicked) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-            }
-
-            //Theme toggle button
-            ThemeToggleButton(
-                onThemeToggle = { themeViewModel.toggleDarkTheme() },
-                isDarkTheme = themeUiState.isDarkTheme,
-            )
-        }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -155,7 +135,27 @@ fun AddFriendsScreen(
             }
         }
 
-        //T possible error will appear above the start button
+        // Top row, containing the back arrow to go back to the home screen and the theme toggle
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            //Back arrow
+            IconButton(onClick = onBackClicked) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+            }
+
+            //Theme toggle button
+            ThemeToggleButton(
+                onThemeToggle = { themeViewModel.toggleDarkTheme() },
+                isDarkTheme = themeUiState.isDarkTheme,
+            )
+        }
+
+        //A possible error will appear above the start button
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)

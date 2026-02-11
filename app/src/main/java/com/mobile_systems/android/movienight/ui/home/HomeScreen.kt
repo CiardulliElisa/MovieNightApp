@@ -54,19 +54,19 @@ fun HomeScreen(
     onMovieNightClicked: () -> Unit,
     modifier: Modifier = Modifier,
     movieDetailsViewModel: MovieDetailsViewModel,
-    movieViewModel: MovieViewModel,
+    movieListsViewModel: MovieListsViewModel,
     contentType: MovieNightContentType,
 ) {
     //Ui states
     val themeUiState by themeViewModel.uiState.collectAsState()
     val homeUiState by homeViewModel.homeUiState.collectAsState()
     val movieDetailsUiState = movieDetailsViewModel.movieDetailsUiState
-    val movieUiState = movieViewModel.movieUiState
+    val movieUiState = movieListsViewModel.movieUiState
 
     //Coroutine scope
     val coroutineScope = rememberCoroutineScope()
 
-    val categories = movieViewModel.getCategories()
+    val categories = movieListsViewModel.getCategories()
     val isDetailVisible = movieDetailsUiState.isSelected
 
     // To avoid that selected movies from other screens are still selected on this screen
@@ -85,7 +85,7 @@ fun HomeScreen(
                 //On error show an alert and ask to reload the page
                 is MovieUiState.Error -> {
                     ErrorScreen(
-                        retryAction = { movieViewModel.fetchAllCategories() },
+                        retryAction = { movieListsViewModel.fetchAllCategories() },
                     )
                 }
                 is MovieUiState.Success -> {
@@ -150,7 +150,7 @@ fun HomeScreen(
         }
 
         //Movie details view (responsive)
-        if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
+        if (contentType == MovieNightContentType.EXPANDED) {
             // Side panel design for non compact devices
             AnimatedVisibility(
                 visible = isDetailVisible,

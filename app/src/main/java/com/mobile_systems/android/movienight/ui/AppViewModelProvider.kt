@@ -6,7 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mobile_systems.android.movienight.MovieNightApplication
 import com.mobile_systems.android.movienight.ui.home.HomeViewModel
-import com.mobile_systems.android.movienight.ui.home.MovieViewModel
+import com.mobile_systems.android.movienight.ui.home.MovieListsViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.MovieNightEventViewModel
 
 /**
@@ -17,7 +17,7 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
 
         initializer {
-            MovieViewModel(
+            MovieListsViewModel(
                 moviesRepository = movieNightApplication().container.moviesRepository
             )
         }

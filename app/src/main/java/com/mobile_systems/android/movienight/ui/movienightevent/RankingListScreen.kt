@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
@@ -116,7 +115,7 @@ fun RankingListScreen(
             }
 
             //Responsive movie details page design
-            if (contentType == MovieNightContentType.LIST_AND_DETAIL) {
+            if (contentType == MovieNightContentType.EXPANDED) {
                 //If the screen is not compact, show a side panel with the movie details
                 AnimatedVisibility(visible = isDetailVisible, enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn()) {
                     Surface(modifier = Modifier.width(400.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 2.dp) {

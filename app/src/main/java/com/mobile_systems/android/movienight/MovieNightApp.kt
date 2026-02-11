@@ -19,7 +19,7 @@ import com.mobile_systems.android.movienight.ui.movienightevent.AddFriendsScreen
 import com.mobile_systems.android.movienight.ui.home.HomeScreen
 import com.mobile_systems.android.movienight.ui.home.HomeViewModel
 import com.mobile_systems.android.movienight.ui.MovieDetailsViewModel
-import com.mobile_systems.android.movienight.ui.home.MovieViewModel
+import com.mobile_systems.android.movienight.ui.home.MovieListsViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.MovieNightEventViewModel
 import com.mobile_systems.android.movienight.ui.movienightevent.RankingListScreen
 import com.mobile_systems.android.movienight.ui.ThemeViewModel
@@ -41,7 +41,7 @@ fun MovieNightApp(
 ) {
 
     //Create view models using the view model provider
-    val movieViewModel: MovieViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val movieListsViewModel: MovieListsViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val movieDetailsViewModel: MovieDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val movieNightEventViewModel: MovieNightEventViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -52,16 +52,16 @@ fun MovieNightApp(
     // Determine the content type to display based on the window size
     val contentType: MovieNightContentType = when (windowSize) {
         WindowWidthSizeClass.Compact -> {
-            MovieNightContentType.LIST_ONLY
+            MovieNightContentType.COMPACT
         }
         WindowWidthSizeClass.Medium -> {
-            MovieNightContentType.LIST_ONLY
+            MovieNightContentType.COMPACT
         }
         WindowWidthSizeClass.Expanded -> {
-            MovieNightContentType.LIST_AND_DETAIL
+            MovieNightContentType.EXPANDED
         }
         else -> {
-            MovieNightContentType.LIST_ONLY
+            MovieNightContentType.COMPACT
         }
     }
 
@@ -87,7 +87,7 @@ fun MovieNightApp(
                         modifier = Modifier,
                         themeViewModel = themeViewModel,
                         movieDetailsViewModel = movieDetailsViewModel,
-                        movieViewModel = movieViewModel,
+                        movieListsViewModel = movieListsViewModel,
                     )
                 }
                 //When a new movie night is ready navigate to the vote page
