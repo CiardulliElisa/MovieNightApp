@@ -237,7 +237,7 @@ fun VoteButton(icon: ImageVector, tint: Color, onClick: () -> Unit, contentDescr
         modifier = Modifier.size(80.dp)) {
         Surface(
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.onSurface,
             shadowElevation = 6.dp
         ) {
             Icon(icon, contentDescription,
